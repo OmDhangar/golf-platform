@@ -1,7 +1,23 @@
-import type { NextConfig } from "next";
-
-const nextConfig: NextConfig = {
-  /* config options here */
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+  // PRD §13: Performance — server components default
+  experimental: {
+    serverComponentsExternalPackages: ["winston", "razorpay"],
+  },
+  // PRD §13: HTTPS enforced in production via Vercel (automatic)
+  // Security headers
+  async headers() {
+    return [
+      {
+        source: "/api/:path*",
+        headers: [
+          { key: "X-Content-Type-Options", value: "nosniff" },
+          { key: "X-Frame-Options", value: "DENY" },
+          { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+        ],
+      },
+    ];
+  },
 };
 
-export default nextConfig;
+module.exports = nextConfig;
