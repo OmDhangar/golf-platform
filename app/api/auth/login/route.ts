@@ -46,9 +46,12 @@ export async function POST(req: NextRequest): Promise<NextResponse<ApiResponse>>
     });
 
     if (authError || !authData.session || !authData.user) {
-      log.warn("Login failed — invalid credentials", { email });
+      log.warn("Login failed — invalid credentials", {
+        email,
+        supaError: authError?.message || "No specific error message provided by Supabase"
+      });
       return NextResponse.json(
-        { success: false, error: "Invalid email or password" },
+        { success: false, error: authError?.message || "Invalid email or password" },
         { status: 401 }
       );
     }
@@ -91,11 +94,11 @@ export async function POST(req: NextRequest): Promise<NextResponse<ApiResponse>>
           user: profileResult.data ?? { id: userId, email },
           subscription: subscription
             ? {
-                id: subscription.id,
-                status: subscription.status,
-                plan_type: subscription.plan_type,
-                renewal_date: subscription.current_period_end,  // PRD §10
-              }
+              id: subscription.id,
+              status: subscription.status,
+              plan_type: subscription.plan_type,
+              renewal_date: subscription.current_period_end,  // PRD §10
+            }
             : null,
           // PRD §04: Inform client if subscription is inactive
           has_active_subscription: subscription?.status === "active",
