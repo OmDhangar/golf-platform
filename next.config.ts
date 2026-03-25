@@ -1,9 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // PRD §13: Performance — server components default
-  experimental: {
-    serverComponentsExternalPackages: ["winston", "razorpay"],
-  },
+  // PRD §13: Performance — moved from experimental to top-level
+  serverExternalPackages: ["winston", "razorpay"],
+
   // PRD §13: HTTPS enforced in production via Vercel (automatic)
   // Security headers
   async headers() {

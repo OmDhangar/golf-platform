@@ -10,6 +10,9 @@ export interface SignupInput {
     email: string;
     password: string;
     full_name: string;
+    plan_type: "monthly" | "yearly";
+    charity_id: string;
+    charity_percent: number;
 }
 
 export interface LoginResponse extends AuthTokens {
