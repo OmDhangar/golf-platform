@@ -1,5 +1,5 @@
 import { apiFetch } from "@/lib/api/client";
-import { setAuthTokens, type AuthTokens } from "@/lib/auth/store";
+import { setAuthSession, type AuthTokens } from "@/lib/auth/store";
 
 export interface LoginInput {
     email: string;
@@ -28,10 +28,13 @@ export const auth = {
             body: payload,
         });
 
-        setAuthTokens({
+        const role = ((data.user as { role?: string } | null)?.role ?? "user");
+
+        setAuthSession({
             access_token: data.access_token,
             refresh_token: data.refresh_token,
             expires_at: data.expires_at,
+            role,
         });
 
         return data;
@@ -50,10 +53,13 @@ export const auth = {
             body: payload,
         });
 
-        setAuthTokens({
+        const role = ((data.user as { role?: string } | null)?.role ?? "user");
+
+        setAuthSession({
             access_token: data.access_token,
             refresh_token: data.refresh_token,
             expires_at: data.expires_at,
+            role,
         });
 
         return data;
