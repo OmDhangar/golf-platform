@@ -5,105 +5,128 @@ import { useSyncExternalStore } from "react";
 const AUTH_STORAGE_KEY = "golf_platform_auth";
 
 export interface AuthTokens {
-    access_token: string;
-    refresh_token: string;
-    expires_at: number;
+  access_token: string;
+  refresh_token: string;
+  expires_at: number;
+}
+
+export interface AuthSession extends AuthTokens {
+  role: string;
 }
 
 interface ClientAuthState {
-    tokens: AuthTokens | null;
+  session: AuthSession | null;
 }
 
 type Listener = () => void;
 
-let state: ClientAuthState = { tokens: null };
+let state: ClientAuthState = { session: null };
 const listeners = new Set<Listener>();
 
 function notifyListeners(): void {
-    listeners.forEach((listener) => listener());
+  listeners.forEach((listener) => listener());
 }
 
-function writeStorage(tokens: AuthTokens | null): void {
-    if (typeof window === "undefined") return;
+function writeStorage(session: AuthSession | null): void {
+  if (typeof window === "undefined") return;
 
-    if (!tokens) {
-        sessionStorage.removeItem(AUTH_STORAGE_KEY);
-        return;
-    }
+  if (!session) {
+    sessionStorage.removeItem(AUTH_STORAGE_KEY);
+    return;
+  }
 
-    sessionStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(tokens));
+  sessionStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(session));
 }
 
-function readStorage(): AuthTokens | null {
-    if (typeof window === "undefined") return null;
+function readStorage(): AuthSession | null {
+  if (typeof window === "undefined") return null;
 
-    const raw = sessionStorage.getItem(AUTH_STORAGE_KEY);
-    if (!raw) return null;
+  const raw = sessionStorage.getItem(AUTH_STORAGE_KEY);
+  if (!raw) return null;
 
-    try {
-        const parsed = JSON.parse(raw) as Partial<AuthTokens>;
+  try {
+    const parsed = JSON.parse(raw) as Partial<AuthSession>;
 
-        if (
-            typeof parsed.access_token !== "string" ||
-            typeof parsed.refresh_token !== "string" ||
-            typeof parsed.expires_at !== "number"
-        ) {
-            return null;
-        }
-
-        return {
-            access_token: parsed.access_token,
-            refresh_token: parsed.refresh_token,
-            expires_at: parsed.expires_at,
-        };
-    } catch {
-        return null;
+    if (
+      typeof parsed.access_token !== "string" ||
+      typeof parsed.refresh_token !== "string" ||
+      typeof parsed.expires_at !== "number"
+    ) {
+      return null;
     }
+
+    return {
+      access_token: parsed.access_token,
+      refresh_token: parsed.refresh_token,
+      expires_at: parsed.expires_at,
+      role: typeof parsed.role === "string" ? parsed.role : "user",
+    };
+  } catch {
+    return null;
+  }
 }
 
 export function hydrateAuthStore(): void {
-    state = { tokens: readStorage() };
-    notifyListeners();
+  state = { session: readStorage() };
+  notifyListeners();
+}
+
+export function setAuthSession(session: AuthSession): void {
+  state = { session };
+  writeStorage(session);
+  notifyListeners();
 }
 
 export function setAuthTokens(tokens: AuthTokens): void {
-    state = { tokens };
-    writeStorage(tokens);
-    notifyListeners();
+  setAuthSession({ ...tokens, role: "user" });
 }
 
 export function clearAuthTokens(): void {
-    state = { tokens: null };
-    writeStorage(null);
-    notifyListeners();
+  state = { session: null };
+  writeStorage(null);
+  notifyListeners();
+}
+
+export function getAuthSession(): AuthSession | null {
+  if (!state.session) {
+    state = { session: readStorage() };
+  }
+
+  return state.session;
 }
 
 export function getAuthTokens(): AuthTokens | null {
-    if (!state.tokens) {
-        state = { tokens: readStorage() };
-    }
+  const session = getAuthSession();
+  if (!session) return null;
 
-    return state.tokens;
+  return {
+    access_token: session.access_token,
+    refresh_token: session.refresh_token,
+    expires_at: session.expires_at,
+  };
 }
 
 export function getAccessToken(): string | null {
-    const tokens = getAuthTokens();
-    return tokens?.access_token ?? null;
+  return getAuthSession()?.access_token ?? null;
+}
+
+export function getUserRole(): string | null {
+  return getAuthSession()?.role ?? null;
 }
 
 function subscribe(listener: Listener): () => void {
-    listeners.add(listener);
-    return () => listeners.delete(listener);
+  listeners.add(listener);
+  return () => listeners.delete(listener);
 }
 
 function getSnapshot(): ClientAuthState {
-    return state;
+  return state;
 }
 
 function getServerSnapshot(): ClientAuthState {
-    return { tokens: null };
+  return { session: null };
 }
 
 export function useClientAuthStore(): ClientAuthState {
-    return useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
+  return useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
 }
