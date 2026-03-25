@@ -68,7 +68,7 @@ export async function POST(req: NextRequest): Promise<NextResponse<ApiResponse>>
 
     if (!sub) {
       return NextResponse.json(
-        { success: false, error: "Active subscription required to submit scores" },
+        { success: false, error: "Active subscription required to submit scores", code: "SUBSCRIPTION_REQUIRED" },
         { status: 403 }
       );
     }
@@ -239,6 +239,22 @@ export async function PATCH(req: NextRequest): Promise<NextResponse<ApiResponse>
 
     const { score_id, value, played_at, course_name } = parsed.data;
 
+    const supabase = createServerClient(authHeader ?? undefined);
+
+    const { data: sub } = await supabase
+      .from("subscriptions")
+      .select("id, status")
+      .eq("user_id", user.id)
+      .eq("status", "active")
+      .maybeSingle();
+
+    if (!sub) {
+      return NextResponse.json(
+        { success: false, error: "Active subscription required to edit scores", code: "SUBSCRIPTION_REQUIRED" },
+        { status: 403 }
+      );
+    }
+
     // Build update object (only include provided fields)
     const updates: Partial<Score> = {};
     if (value !== undefined) {
@@ -262,8 +278,6 @@ export async function PATCH(req: NextRequest): Promise<NextResponse<ApiResponse>
     }
 
     // Use user-scoped client so RLS policy enforces ownership
-    const supabase = createServerClient(authHeader ?? undefined);
-
     const { data: updated, error } = await supabase
       .from("scores")
       .update(updates)
