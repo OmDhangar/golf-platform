@@ -1,8 +1,12 @@
 import { apiFetch } from "@/lib/api/client";
 
 export const charities = {
-    list(): Promise<unknown> {
+    list(): Promise<any> {
         return apiFetch("/api/charities", { method: "GET" });
+    },
+
+    get(id: string): Promise<any> {
+        return apiFetch(`/api/charities?id=${encodeURIComponent(id)}`, { method: "GET" });
     },
 
     create(payload: unknown): Promise<unknown> {

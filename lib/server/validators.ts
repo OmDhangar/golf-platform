@@ -159,6 +159,13 @@ export const createDrawSchema = z.object({
     .string()
     .regex(/^\d{4}-\d{2}$/, "draw_month must be YYYY-MM format"),
   description: z.string().max(500).optional(),
+  prize_pool_total_paise: z.number().int().min(0).default(0),
+  prize_1_label: z.string().max(200).optional().or(z.literal("")).nullable(),
+  prize_2_label: z.string().max(200).optional().or(z.literal("")).nullable(),
+  prize_3_label: z.string().max(200).optional().or(z.literal("")).nullable(),
+  prize_1_image_url: z.string().url().optional().or(z.literal("")).nullable(),
+  prize_2_image_url: z.string().url().optional().or(z.literal("")).nullable(),
+  prize_3_image_url: z.string().url().optional().or(z.literal("")).nullable(),
 });
 
 // ---------------------------------------------------------------------------
@@ -188,9 +195,11 @@ export const reviewWinnerSchema = z.object({
 export const createCharitySchema = z.object({
   name: z.string().min(2).max(200).trim(),
   description: z.string().max(2000).trim(),
-  website_url: z.string().url().optional(),
-  logo_url: z.string().url().optional(),
+  website_url: z.string().url().optional().or(z.literal("")).nullable(),
+  logo_url: z.string().url().optional().or(z.literal("")).nullable(),
   is_featured: z.boolean().default(false),
+  category: z.string().default("General"),
+  total_generated_paise: z.number().int().min(0).default(0),
   events: z
     .array(
       z.object({

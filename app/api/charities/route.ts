@@ -25,6 +25,8 @@ import { createCharitySchema, updateCharitySchema } from "@/lib/server/validator
 import type { ApiResponse } from "@/types/index";
 
 export const runtime = "nodejs";
+// 1-hour ISR cache — charity data changes infrequently
+export const revalidate = 3600;
 
 // ---------------------------------------------------------------------------
 // GET — Public charity listing
@@ -41,7 +43,7 @@ export async function GET(req: NextRequest): Promise<NextResponse<ApiResponse>> 
     const featured = searchParams.get("featured") === "true";
     const search = searchParams.get("search") ?? "";
 
-    const supabase = createAdminClient();
+    const supabase = createAdminClient() as any;
 
     // --- Single charity profile ---
     if (charityId) {
@@ -124,18 +126,20 @@ export async function POST(req: NextRequest): Promise<NextResponse<ApiResponse>>
       );
     }
 
-    const supabase = createAdminClient();
+    const supabase = createAdminClient() as any;
 
     const { data: charity, error } = await supabase
       .from("charities")
       .insert({
         name: parsed.data.name,
         description: parsed.data.description,
-        website_url: parsed.data.website_url ?? null,
-        logo_url: parsed.data.logo_url ?? null,
+        website_url: parsed.data.website_url || null,
+        logo_url: parsed.data.logo_url || null,
         is_featured: parsed.data.is_featured,
+        category: parsed.data.category,
+        total_generated_paise: parsed.data.total_generated_paise,
         events: parsed.data.events ? JSON.stringify(parsed.data.events) : "[]",
-      })
+      } as any)
       .select()
       .single();
 
@@ -181,11 +185,11 @@ export async function PATCH(req: NextRequest): Promise<NextResponse<ApiResponse>
     }
 
     const { charity_id, ...updates } = parsed.data;
-    const supabase = createAdminClient();
+    const supabase = createAdminClient() as any;
 
     const { data: charity, error } = await supabase
       .from("charities")
-      .update({ ...updates, updated_at: new Date().toISOString() })
+      .update({ ...updates, updated_at: new Date().toISOString() } as any)
       .eq("id", charity_id)
       .select()
       .single();
@@ -231,7 +235,7 @@ export async function DELETE(req: NextRequest): Promise<NextResponse<ApiResponse
       return NextResponse.json({ success: false, error: "Charity ID required" }, { status: 400 });
     }
 
-    const supabase = createAdminClient();
+    const supabase = createAdminClient() as any;
 
     // Check no users are currently assigned to this charity
     const { count } = await supabase

@@ -153,7 +153,7 @@ export default function SubscribePage() {
                     }}
                 >
                     <Link
-                        href="/payment/pending"
+                        href="/plans"
                         style={{
                             padding: "16px 24px",
                             background: "var(--green)",
@@ -177,7 +177,7 @@ export default function SubscribePage() {
                             e.currentTarget.style.background = "var(--green)";
                         }}
                     >
-                        COMPLETE CHECKOUT
+                        VIEW PLANS & CHECKOUT
                     </Link>
 
                     <Link
@@ -309,17 +309,4 @@ export default function SubscribePage() {
         </main>
     );
 }
-                <Link
-                    href="/payment/success"
-                    className="rounded-lg border border-zinc-300 px-4 py-3 text-center font-semibold"
-                >
-                    I already paid
-                </Link>
-            </div>
 
-            <p className="text-xs text-zinc-500">
-                Supported lifecycle states: <strong>created</strong>, <strong>active</strong>, <strong>paused</strong>, <strong>cancelled</strong>, and <strong>expired</strong>.
-            </p>
-        </main>
-    );
-}

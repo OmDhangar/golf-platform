@@ -5,8 +5,9 @@ import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { subscriptions } from "@/lib/api/endpoints/subscriptions";
 import { charities } from "@/lib/api/endpoints/charities";
+import { dashboard } from "@/lib/api/endpoints/dashboard";
 import { getOnboardingState } from "@/lib/onboarding/store";
-import { ApiClientError } from "@/lib/api/client";
+import { ApiClientError, apiFetch } from "@/lib/api/client";
 
 interface Charity {
     id: string;
@@ -16,7 +17,7 @@ interface Charity {
 export default function PlansPage() {
     const router = useRouter();
     const searchParams = useSearchParams();
-    
+
     const [charity, setCharity] = useState<Charity | null>(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -25,13 +26,22 @@ export default function PlansPage() {
     useEffect(() => {
         async function loadCharity() {
             const charityId = searchParams.get("charity_id");
-            
+
             if (!charityId) {
                 // Try to get from onboarding state
                 const state = getOnboardingState();
                 if (state?.charity_id) {
                     loadCharityById(state.charity_id);
                     setCharityPercent(state.charity_percent || 10);
+                } else {
+                    // Fallback: Try to get from dashboard/profile if logged in
+                    try {
+                        const dash = await dashboard.get();
+                        if (dash.charity?.selected?.id) {
+                            loadCharityById(dash.charity.selected.id);
+                            setCharityPercent(dash.charity.contribution_percent || 10);
+                        }
+                    } catch { /* session might be public */ }
                 }
                 return;
             }
@@ -41,12 +51,9 @@ export default function PlansPage() {
 
         async function loadCharityById(charityId: string) {
             try {
-                const response = await charities.list() as any;
-                if (response.success && response.data?.charities) {
-                    const found = response.data.charities.find((c: Charity) => c.id === charityId);
-                    if (found) {
-                        setCharity(found);
-                    }
+                const data = await charities.get(charityId);
+                if (data?.charity) {
+                    setCharity(data.charity);
                 }
             } catch (err) {
                 console.error("Failed to load charity:", err);
@@ -59,7 +66,7 @@ export default function PlansPage() {
     async function handleFreeFinalize() {
         setLoading(true);
         setError(null);
-        
+
         try {
             // For free plan, just confirm and redirect to dashboard
             // The user profile was already created during signup with the charity_id
@@ -91,12 +98,49 @@ export default function PlansPage() {
                 charity_percent: charityPercent,
             }) as any;
 
-            const paymentUrl = response.data?.payment_url || response.payment_url;
-            if (paymentUrl) {
-                window.location.assign(paymentUrl);
-            } else {
-                throw new Error("No payment URL returned");
+            const subscription_id = response.data?.razorpay_subscription_id || response.razorpay_subscription_id;
+            
+            if (!subscription_id) {
+                throw new Error("No subscription ID returned");
             }
+
+            // Load Razorpay Script
+            const script = document.createElement("script");
+            script.src = "https://checkout.razorpay.com/v1/checkout.js";
+            script.async = true;
+            script.onload = () => {
+                const options = {
+                    key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
+                    subscription_id: subscription_id,
+                    name: "Golf Charity Platform",
+                    description: `${planType === 'monthly' ? 'Monthly' : 'Yearly'} Pro Plan`,
+                    handler: async function(response: any) {
+                        // Pre-emptively sync status to avoid waiting for webhook
+                        try {
+                            await apiFetch("/api/subscriptions/sync", { method: "POST", protectedRoute: true });
+                        } catch (err) {
+                            console.error("Sync failed:", err);
+                        }
+                        // Redirect to dashboard
+                        window.location.assign("/dashboard?subscription=success");
+                    },
+                    prefill: {
+                        name: "Golfer",
+                        email: "", // User's email from session/context would be better
+                    },
+                    notes: {
+                        charity: charity.name
+                    },
+                    theme: {
+                        color: "#22c55e"
+                    }
+                };
+                const rzp = new (window as any).Razorpay(options);
+                rzp.open();
+                setLoading(false);
+            };
+            document.body.appendChild(script);
+
         } catch (err) {
             if (err instanceof ApiClientError) {
                 setError(err.message);

@@ -1,7 +1,17 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   // PRD §13: Performance — moved from experimental to top-level
-  serverExternalPackages: ["winston", "razorpay"],
+  serverExternalPackages: ["winston", "razorpay", "cloudinary"],
+
+  images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "res.cloudinary.com",
+        pathname: "/**",
+      },
+    ],
+  },
 
   // PRD §13: HTTPS enforced in production via Vercel (automatic)
   // Security headers

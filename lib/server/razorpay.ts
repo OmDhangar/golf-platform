@@ -143,7 +143,9 @@ export async function createRazorpaySubscription(
 ): Promise<{ subscriptionId: string; shortUrl: string }> {
   const plan = PLANS[planType];
 
-  const subscription = await razorpay.subscriptions.create({
+  const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+  
+  const subscription = await (razorpay.subscriptions.create as any)({
     plan_id: plan.id,
     customer_notify: 1,
     quantity: 1,

@@ -3,57 +3,6 @@ import { headers } from "next/headers";
 import type { Charity, CharityEvent } from "@/types";
 import NavBar from "@/components/nav-bar";
 
-const STATIC_CHARITIES = [
-  {
-    id: "ocean-conservancy",
-    name: "OCEAN CONSERVANCY",
-    description: "Protecting vulnerable marine ecosystems and funding rapid-response cleanup initiatives...",
-    category: "ENVIRONMENT",
-    image: "/charity-ocean.png",
-    generated: "$125,000",
-  },
-  {
-    id: "youth-on-course",
-    name: "YOUTH ON COURSE",
-    description: "Providing accessible rounds, caddie programs, and college scholarships to high school...",
-    category: "YOUTH ATHLETICS",
-    image: "/charity-golf-youth.png",
-    generated: "$430,000",
-  },
-  {
-    id: "nature-conservancy",
-    name: "NATURE CONSERVANCY",
-    description: "Conserving the lands and waters on which all life depends through data-driven land acquisition.",
-    category: "ENVIRONMENT",
-    image: "/charity-nature.png",
-    generated: "$75,000",
-  },
-  {
-    id: "wounded-warrior",
-    name: "WOUNDED WARRIOR",
-    description: "Rehabilitation and athletic programs designed for veterans recovering from physical and...",
-    category: "HEALTH & WELLNESS",
-    image: "/charity-warrior.png",
-    generated: "$315,000",
-  },
-  {
-    id: "clean-water-action",
-    name: "CLEAN WATER ACTION",
-    description: "Protecting municipal water sources and combating industrial runoff near recreational areas.",
-    category: "ENVIRONMENT",
-    image: "/charity-water.png",
-    generated: "$85,000",
-  },
-  {
-    id: "first-tee",
-    name: "FIRST TEE",
-    description: "Integrating life skills and character education through the game of golf for inner-city youth.",
-    category: "YOUTH ATHLETICS",
-    image: "/charity-first-tee.png",
-    generated: "$210,000",
-  },
-];
-
 const ALL_CATEGORIES = ["ALL INITIATIVES", "ENVIRONMENT", "YOUTH ATHLETICS", "HEALTH & WELLNESS"];
 
 function parseEvents(events: Charity["events"] | string | null): CharityEvent[] {
@@ -93,11 +42,14 @@ export default async function CharitiesPage({
   const query = await searchParams;
   const activeCategory = query.category ?? "ALL INITIATIVES";
 
-  const filtered = STATIC_CHARITIES.filter((c) =>
+  const allCharities = await getCharities({});
+  
+  const filtered = allCharities.filter((c) =>
     activeCategory === "ALL INITIATIVES" ? true : c.category === activeCategory
   );
 
-  const totalImpact = 1240500;
+  const totalImpactPaise = allCharities.reduce((sum, c) => sum + (c.total_generated_paise || 0), 0);
+  const totalImpactFormatted = Math.floor(totalImpactPaise / 100).toLocaleString("en-US");
 
   return (
     <div style={{ minHeight: "100vh", background: "var(--bg-deep)" }}>
@@ -117,7 +69,7 @@ export default async function CharitiesPage({
               className="font-barlow"
               style={{ fontSize: "2.6rem", fontWeight: 800, color: "var(--green)", letterSpacing: "-0.01em" }}
             >
-              ${totalImpact.toLocaleString()}
+              ${totalImpactFormatted}
             </p>
           </div>
 
@@ -176,25 +128,27 @@ export default async function CharitiesPage({
               <div style={{ position: "relative", height: 160, overflow: "hidden" }}>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
-                  src={charity.image}
+                  src={charity.logo_url || ""}
                   alt={charity.name}
                   style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
                 />
                 {/* Category badge */}
-                <div
-                  style={{
-                    position: "absolute", top: 10, right: 10,
-                    background: "rgba(0,0,0,0.75)", border: "1px solid rgba(255,255,255,0.15)",
-                    borderRadius: 3, padding: "3px 8px",
-                    fontFamily: "'Barlow Condensed', sans-serif",
-                    fontWeight: 700, fontSize: "0.6rem",
-                    letterSpacing: "0.1em", textTransform: "uppercase",
-                    color: "var(--text-primary)",
-                    backdropFilter: "blur(4px)",
-                  }}
-                >
-                  {charity.category}
-                </div>
+                {charity.category && (
+                  <div
+                    style={{
+                      position: "absolute", top: 10, right: 10,
+                      background: "rgba(0,0,0,0.75)", border: "1px solid rgba(255,255,255,0.15)",
+                      borderRadius: 3, padding: "3px 8px",
+                      fontFamily: "'Barlow Condensed', sans-serif",
+                      fontWeight: 700, fontSize: "0.6rem",
+                      letterSpacing: "0.1em", textTransform: "uppercase",
+                      color: "var(--text-primary)",
+                      backdropFilter: "blur(4px)",
+                    }}
+                  >
+                    {charity.category}
+                  </div>
+                )}
               </div>
 
               {/* Content */}
@@ -208,10 +162,34 @@ export default async function CharitiesPage({
                 <p style={{ fontSize: "0.78rem", color: "var(--text-secondary)", lineHeight: 1.55, marginBottom: 14 }}>
                   {charity.description}
                 </p>
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", borderTop: "1px solid var(--border)", paddingTop: 12 }}>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", borderTop: "1px solid var(--border)", paddingTop: 12, marginBottom: 16 }}>
                   <span className="label-caps" style={{ color: "var(--text-muted)" }}>GENERATED</span>
-                  <span className="font-barlow" style={{ fontWeight: 800, fontSize: "1rem", color: "var(--green)" }}>{charity.generated}</span>
+                  <span className="font-barlow" style={{ fontWeight: 800, fontSize: "1rem", color: "var(--green)" }}>
+                    ${Math.floor((charity.total_generated_paise || 0) / 100).toLocaleString("en-US")}
+                  </span>
                 </div>
+                <Link
+                  href={`/plans?charity_id=${charity.id}`}
+                  style={{
+                    display: "block",
+                    width: "100%",
+                    padding: "10px",
+                    background: "rgba(34, 197, 94, 0.1)",
+                    border: "1px solid var(--green)",
+                    color: "var(--green)",
+                    borderRadius: 4,
+                    textAlign: "center",
+                    textDecoration: "none",
+                    fontFamily: "'Barlow Condensed', sans-serif",
+                    fontWeight: 700,
+                    fontSize: "0.85rem",
+                    letterSpacing: "0.05em",
+                    textTransform: "uppercase",
+                    transition: "all 0.15s"
+                  }}
+                >
+                  SUPPORT THIS CAUSE
+                </Link>
               </div>
             </div>
           ))}

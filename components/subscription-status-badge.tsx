@@ -1,4 +1,4 @@
-import { STATUS_LABELS, getSubscriptionTone } from "@/lib/auth/subscription";
+import { STATUS_LABELS, getSubscriptionTone } from "@/lib/auth/subscriptions";
 import type { SubscriptionStatus } from "@/types";
 
 interface SubscriptionStatusBadgeProps {

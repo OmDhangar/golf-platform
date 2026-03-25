@@ -88,6 +88,13 @@ export interface Draw {
   active_subscriber_count: number | null;
   description: string | null;
   published_at: string | null;
+  // Prize images & labels (Cloudinary URLs)
+  prize_1_image_url: string | null;
+  prize_2_image_url: string | null;
+  prize_3_image_url: string | null;
+  prize_1_label: string | null;
+  prize_2_label: string | null;
+  prize_3_label: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -115,6 +122,8 @@ export interface Charity {
   logo_url: string | null;
   is_featured: boolean;                // PRD §08: "Featured / spotlight charity"
   events: CharityEvent[] | null;       // PRD §08: "upcoming events (e.g. golf days)"
+  category: string | null;             // ENVIRONMENT | YOUTH ATHLETICS | HEALTH & WELLNESS
+  total_generated_paise: number | null; // cumulative donations generated
   created_at: string;
   updated_at: string;
 }

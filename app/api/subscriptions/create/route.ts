@@ -61,13 +61,14 @@ export async function POST(req: NextRequest): Promise<NextResponse<ApiResponse>>
     const plan = PLANS[plan_type as PlanType];
 
     // --- 3. Check for existing active subscription ---
-    const supabase = createAdminClient();
+    const supabase = createAdminClient() as any;
 
     const { data: existing } = await supabase
       .from("subscriptions")
       .select("id, status")
       .eq("user_id", user.id)
-      .in("status", ["active", "created", "authenticated"])
+      .in("status", ["active", "authenticated"])
+      .limit(1)
       .maybeSingle();
 
     if (existing) {

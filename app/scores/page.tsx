@@ -70,15 +70,25 @@ export default function ScoresPage() {
       } else {
         await scores.create(payload, { skipRedirect: true });
       }
-      setForm(EMPTY_FORM); setEditingId(null); router.refresh(); await refreshScores();
+      router.push("/dashboard?score=success");
     } catch (err) {
       if (err instanceof ApiClientError) {
         if (err.status === 422) applyBackendValidation(err.details);
         else if (err.status === 403) { setSubscriptionRequired(true); setFormError(err.message); }
         else setFormError(err.message);
-      } else setFormError("Unable to save score. Please try again.");
+      } else {
+        setFormError("Unable to save score. Please try again.");
+      }
     } finally { setSaving(false); }
   }
+
+  useEffect(() => {
+    const editId = new URLSearchParams(window.location.search).get("edit");
+    if (editId && entries.length > 0) {
+        const entry = entries.find(e => e.id === editId);
+        if (entry) startEdit(entry);
+    }
+  }, [entries]);
 
   function applyBackendValidation(details: unknown): void {
     const fieldErrors = typeof details === "object" && details !== null && "fieldErrors" in details
@@ -95,7 +105,13 @@ export default function ScoresPage() {
     setForm({ value: String(entry.value), played_at: entry.played_at, course_name: entry.course_name ?? "" });
   }
   function cancelEdit(): void {
-    setEditingId(null); setErrors({}); setFormError(null); setSubscriptionRequired(false); setForm(EMPTY_FORM);
+    setEditingId(null);
+    setErrors({});
+    setFormError(null);
+    setSubscriptionRequired(false);
+    setForm(EMPTY_FORM);
+
+    router.push("/dashboard");
   }
 
   const rollingScores = entries.length > 0 ? entries.map((e) => e.value) : [32, 34, 38, 35, 36];
