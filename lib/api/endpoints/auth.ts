@@ -1,5 +1,6 @@
 import { apiFetch } from "@/lib/api/client";
-import { setAuthTokens, type AuthTokens } from "@/lib/auth/store";
+import { setAuthContext, setAuthTokens, type AuthTokens } from "@/lib/auth/store";
+import type { SubscriptionStatus } from "@/types";
 
 export interface LoginInput {
     email: string;
@@ -17,8 +18,14 @@ export interface SignupInput {
 
 export interface LoginResponse extends AuthTokens {
     user: unknown;
-    subscription: unknown;
+    subscription: {
+        id: string;
+        status: SubscriptionStatus;
+        plan_type: "monthly" | "yearly";
+        renewal_date: string | null;
+    } | null;
     has_active_subscription: boolean;
+
 }
 
 export const auth = {
@@ -32,6 +39,11 @@ export const auth = {
             access_token: data.access_token,
             refresh_token: data.refresh_token,
             expires_at: data.expires_at,
+        });
+
+        setAuthContext({
+            has_active_subscription: data.has_active_subscription,
+            subscription_status: data.subscription?.status ?? null,
         });
 
         return data;
@@ -55,6 +67,14 @@ export const auth = {
             refresh_token: data.refresh_token,
             expires_at: data.expires_at,
         });
+
+        setAuthContext({
+            has_active_subscription: data.has_active_subscription,
+            subscription_status: data.subscription?.status ?? null,
+        });
+
+
+
 
         return data;
     },
