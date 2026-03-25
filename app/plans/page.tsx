@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { subscriptions } from "@/lib/api/endpoints/subscriptions";
@@ -14,7 +14,7 @@ interface Charity {
     name: string;
 }
 
-export default function PlansPage() {
+function PlansContent() {
     const router = useRouter();
     const searchParams = useSearchParams();
 
@@ -480,3 +480,16 @@ export default function PlansPage() {
         </main>
     );
 }
+
+export default function PlansPage() {
+    return (
+        <Suspense fallback={
+            <div style={{ minHeight: "100vh", background: "var(--bg-deep)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <div style={{ color: "var(--green)", fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, letterSpacing: "0.1em" }}>LOADING PLANS...</div>
+            </div>
+        }>
+            <PlansContent />
+        </Suspense>
+    );
+}
+
