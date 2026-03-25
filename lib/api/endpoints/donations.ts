@@ -54,7 +54,6 @@ export const donations = {
         });
     },
 
-
     create(payload: IndependentDonationPayload): Promise<IndependentDonationResponse> {
         return apiFetch<IndependentDonationResponse>("/api/donations", {
             method: "POST",

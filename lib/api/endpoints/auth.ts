@@ -1,5 +1,5 @@
 import { apiFetch } from "@/lib/api/client";
-import { setAuthContext, setAuthTokens, type AuthTokens } from "@/lib/auth/store";
+import { setAuthContext, setAuthSession, type AuthTokens } from "@/lib/auth/store";
 import type { SubscriptionStatus } from "@/types";
 
 export interface LoginInput {
@@ -35,10 +35,13 @@ export const auth = {
             body: payload,
         });
 
-        setAuthTokens({
+        const role = ((data.user as { role?: string } | null)?.role ?? "user");
+
+        setAuthSession({
             access_token: data.access_token,
             refresh_token: data.refresh_token,
             expires_at: data.expires_at,
+            role,
         });
 
         setAuthContext({
@@ -62,10 +65,13 @@ export const auth = {
             body: payload,
         });
 
-        setAuthTokens({
+        const role = ((data.user as { role?: string } | null)?.role ?? "user");
+
+        setAuthSession({
             access_token: data.access_token,
             refresh_token: data.refresh_token,
             expires_at: data.expires_at,
+            role,
         });
 
         setAuthContext({
