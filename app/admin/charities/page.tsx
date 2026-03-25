@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import NavBar from "@/components/nav-bar";
+import { apiFetch, ApiClientError } from "@/lib/api/client";
 
 export default function AdminCharitiesPage() {
   const router = useRouter();
@@ -45,27 +46,12 @@ export default function AdminCharitiesPage() {
       let logo_url = null;
       if (file) {
         const base64Data = await toBase64(file);
-        
-        // We use our existing auth token stored in localStorage (if any) or cookies.
-        // Assuming the admin session is managed via supabase auth on the client.
-        const uploadRes = await fetch("/api/upload", {
+        const uploadData = await apiFetch<any>("/api/upload", {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            // Note: The API requires Authorization header. We need to pass the JWT.
-            // In a real app we'd get the session: `const { data } = await supabase.auth.getSession();`
-            // Since this is a Client Component, we could use supabase-js browser client here.
-            // However, we can also let the server API rely on cookies if `createServerClient` reads cookies.
-            // But our `createServerClient` specifically looks for Authorization header:
-          },
-          body: JSON.stringify({ data: base64Data, folder: "charities" }),
+          body: { data: base64Data, folder: "charities" },
+          protectedRoute: true,
         });
-        
-        const uploadData = await uploadRes.json();
-        if (!uploadRes.ok || !uploadData.success) {
-          throw new Error(uploadData.error || "Failed to upload image");
-        }
-        logo_url = uploadData.data.secure_url;
+        logo_url = uploadData.secure_url;
       }
 
       // 2. Submit Charity to DB
@@ -79,16 +65,11 @@ export default function AdminCharitiesPage() {
         total_generated_paise: 0,
       };
 
-      const res = await fetch("/api/charities", {
+      await apiFetch("/api/charities", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(charityPayload),
+        body: charityPayload,
+        protectedRoute: true,
       });
-
-      const data = await res.json();
-      if (!res.ok || !data.success) {
-        throw new Error(data.error || "Failed to save charity");
-      }
 
       setSuccess(true);
       setName("");
@@ -103,7 +84,7 @@ export default function AdminCharitiesPage() {
       router.refresh();
 
     } catch (err: any) {
-      setError(err.message);
+      setError(err instanceof ApiClientError ? err.message : (err.message || "Failed to save charity"));
     } finally {
       setLoading(false);
     }

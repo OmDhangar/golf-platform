@@ -11,15 +11,68 @@ const MOCK_FLAGGED = [
 
 export default function AdminDashboardPage() {
   const [search, setSearch] = useState("");
-  const [totalUsers, setTotalUsers] = useState<number>(12450);
+  const [totalUsers, setTotalUsers] = useState<number>(0);
+  const [currentDraw, setCurrentDraw] = useState<any>(null);
   const [simRunning, setSimRunning] = useState(false);
+  const [publishRunning, setPublishRunning] = useState(false);
+  const [simResult, setSimResult] = useState<any>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  const month = new Date().toISOString().slice(0, 7); // YYYY-MM
+
+  const loadDraw = async () => {
+    try {
+      const res = await fetch(`/api/draws?month=${month}`);
+      const d = await res.json();
+      if (d.success) setCurrentDraw(d.data.draw);
+    } catch (err) {}
+  };
 
   useEffect(() => {
+    void loadDraw();
     void admin.reports({ include: ["users"] }).then((r) => {
       const payload = r as { users?: { total?: number } };
       if (payload?.users?.total) setTotalUsers(payload.users.total);
     }).catch(() => {});
   }, []);
+
+  const handleSimulate = async () => {
+    if (!currentDraw) { setError("No draw configuration found for this month."); return; }
+    setSimRunning(true);
+    setError(null);
+    try {
+       const res = await admin.simulateDraw({
+         draw_id: currentDraw.id,
+         mode: "algorithmic"
+       });
+       setSimResult((res as any).simulation ? (res as any) : null);
+    } catch (err: any) {
+       setError(err.message || "Simulation failed");
+    } finally {
+       setSimRunning(false);
+    }
+  };
+
+  const handlePublish = async () => {
+    if (!currentDraw) { setError("No draw found."); return; }
+    if (!confirm("CRITICAL ACTION: THIS WILL COMMIT RESULTS TO DB AND NOTIFY ALL WINNERS. PROCEED?")) return;
+    
+    setPublishRunning(true);
+    setError(null);
+    try {
+      await admin.publishDraw({
+        draw_id: currentDraw.id,
+        mode: "algorithmic",
+        confirm: true
+      });
+      alert("DRAW PUBLISHED SUCCESSFULLY! GO TO RESULTS TO VIEW.");
+      loadDraw();
+    } catch (err: any) {
+      setError(err.message || "Publish failed");
+    } finally {
+      setPublishRunning(false);
+    }
+  };
 
   return (
     <div style={{ display: "flex", flexDirection: "column", flex: 1, minHeight: "100vh", background: "var(--bg-deep)" }}>
@@ -190,22 +243,50 @@ export default function AdminDashboardPage() {
               <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: 16 }}>
                 <div>
                   <p className="label-caps" style={{ color: "var(--text-muted)", fontSize: "0.6rem" }}>MONTH</p>
-                  <p className="font-barlow" style={{ fontWeight: 800, fontSize: "1.3rem", textTransform: "uppercase", color: "var(--text-primary)" }}>OCTOBER</p>
+                  <p className="font-barlow" style={{ fontWeight: 800, fontSize: "1.3rem", textTransform: "uppercase", color: "var(--text-primary)" }}>
+                    {new Date().toLocaleString('default', { month: 'long' })}
+                  </p>
                 </div>
                 <div style={{ textAlign: "right" }}>
-                  <p className="label-caps" style={{ color: "var(--text-muted)", fontSize: "0.6rem" }}>TOTAL VALUE</p>
-                  <p className="font-barlow" style={{ fontWeight: 800, fontSize: "1.5rem", color: "var(--green)" }}>$45,000</p>
+                  <p className="label-caps" style={{ color: "var(--text-muted)", fontSize: "0.6rem" }}>STATUS</p>
+                  <p className="font-barlow" style={{ fontWeight: 800, fontSize: "1.3rem", color: currentDraw?.status === "published" ? "var(--green)" : "var(--text-muted)" }}>
+                    {currentDraw?.status?.toUpperCase() || "UNCONFIGURED"}
+                  </p>
                 </div>
               </div>
+
+              {/* Simulation Result Preview */}
+              {simResult && (
+                <div style={{ background: "rgba(0,255,100,0.05)", border: "1px solid var(--green)", borderRadius: 4, padding: "12px", marginBottom: 14 }}>
+                   <p className="label-caps" style={{ color: "var(--green)", fontSize: "0.6rem", marginBottom: 8 }}>SIMULATION SUCCESSFUL</p>
+                   <div style={{ display: "flex", gap: 6, marginBottom: 10 }}>
+                     {simResult.winning_numbers?.map((n: number, i: number) => (
+                       <div key={i} style={{ width: 28, height: 28, borderRadius: "50%", background: "var(--green)", color: "#000", fontSize: "0.75rem", fontWeight: 800, display: "flex", alignItems: "center", justifyContent: "center" }}>{n}</div>
+                     ))}
+                   </div>
+                   <p style={{ fontSize: "0.7rem", color: "var(--text-secondary)" }}>
+                     Winners: <span style={{ color: "#fff" }}>{simResult.winners?.length || 0}</span> | 
+                     Rollover: <span style={{ color: "#fff" }}>₹{(simResult.jackpot_rollover_paise / 100).toLocaleString()}</span>
+                   </p>
+                </div>
+              )}
+
+              {error && (
+                <div style={{ background: "rgba(255,50,50,0.1)", border: "1px solid var(--red)", borderRadius: 4, padding: "10px", marginBottom: 14 }}>
+                  <p style={{ color: "var(--red)", fontSize: "0.7rem" }}>{error}</p>
+                </div>
+              )}
 
               {/* System Ready */}
               <div style={{ background: "var(--bg-surface)", border: "1px solid var(--border)", borderRadius: 4, padding: "14px 16px", marginBottom: 14 }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
-                  <div className="pulse-green" style={{ width: 8, height: 8, borderRadius: "50%", background: "var(--green)", flexShrink: 0 }} />
-                  <p className="label-caps" style={{ color: "var(--green)" }}>SYSTEM READY</p>
+                  <div className={currentDraw ? "pulse-green" : ""} style={{ width: 8, height: 8, borderRadius: "50%", background: currentDraw ? "var(--green)" : "var(--text-muted)", flexShrink: 0 }} />
+                  <p className="label-caps" style={{ color: currentDraw ? "var(--green)" : "var(--text-muted)" }}>{currentDraw ? "ENGINE READY" : "CONFIG REQUIRED"}</p>
                 </div>
                 <p style={{ fontSize: "0.75rem", color: "var(--text-muted)", fontFamily: "'Inter', sans-serif", lineHeight: 1.5 }}>
-                  All verifications must be processed before initializing the main draw sequence.
+                  {currentDraw 
+                    ? "Draw configuration loaded. You can now run a simulation or commit the live draw." 
+                    : "No draw configuration found for this month. Please configure prizes first."}
                 </p>
               </div>
 
@@ -213,16 +294,21 @@ export default function AdminDashboardPage() {
               <button
                 className="btn-ghost"
                 style={{ width: "100%", marginBottom: 10, display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}
-                onClick={() => setSimRunning(true)}
-                disabled={simRunning}
+                onClick={handleSimulate}
+                disabled={simRunning || !currentDraw || currentDraw?.status === "published"}
               >
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" stroke="currentColor" strokeWidth="2" /><rect x="8" y="2" width="8" height="4" rx="1" stroke="currentColor" strokeWidth="2" /></svg>
                 {simRunning ? "RUNNING SIM..." : "RUN TEST SIM"}
               </button>
 
-              <button className="btn-danger" style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
+              <button 
+                className="btn-danger" 
+                style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}
+                onClick={handlePublish}
+                disabled={publishRunning || !currentDraw || currentDraw?.status === "published"}
+              >
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" fill="currentColor" /></svg>
-                INITIATE LIVE DRAW
+                {publishRunning ? "PUBLISHING..." : currentDraw?.status === "published" ? "DRAW COMPLETED" : "INITIATE LIVE DRAW"}
               </button>
             </div>
           </div>

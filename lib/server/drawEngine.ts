@@ -194,7 +194,7 @@ async function calculatePrizePool(
   // Sum prize_pool_contribution from all active subscriptions this cycle
   const { data, error } = await supabase
     .from("subscriptions")
-    .select("prize_pool_contribution_paise")
+    .select("*")
     .eq("status", "active");
 
   if (error) throw new Error(`Prize pool query failed: ${error.message}`);
@@ -245,6 +245,13 @@ export async function runDraw(config: DrawConfig): Promise<SimulationResult> {
   log.info("[DrawEngine] Winning numbers generated", { winningNumbers });
 
   // --- Step 2: Fetch all active subscribers + their latest 5 scores ---
+  type UserWithScores = {
+    id: string;
+    email: string;
+    subscriptions: { status: string }[];
+    scores: { value: number; created_at: string }[];
+  };
+  
   const { data: users, error: usersError } = await supabase
     .from("users")
     .select(`
@@ -253,7 +260,7 @@ export async function runDraw(config: DrawConfig): Promise<SimulationResult> {
       subscriptions!inner(status),
       scores(value, created_at)
     `)
-    .eq("subscriptions.status", "active");
+    .eq("subscriptions.status", "active") as { data: UserWithScores[] | null; error: any };
 
   if (usersError) throw new Error(`User fetch failed: ${usersError.message}`);
 
@@ -262,7 +269,7 @@ export async function runDraw(config: DrawConfig): Promise<SimulationResult> {
   log.info("[DrawEngine] Prize pool calculated", { pool });
 
   // --- Step 4: Match each user ---
-  const winnersByTier: Record<"five" | "four" | "three", typeof users> = {
+  const winnersByTier: Record<"five" | "four" | "three", UserWithScores[]> = {
     five: [],
     four: [],
     three: [],
@@ -350,7 +357,7 @@ async function persistDrawResults(
   // so we handle partial failure via explicit cleanup in catch)
 
   // 1. Update the draw record with winning numbers + status
-  const { error: drawError } = await supabase
+  const updateResult = await (supabase as any)
     .from("draws")
     .update({
       winning_numbers: result.winningNumbers,
@@ -363,7 +370,7 @@ async function persistDrawResults(
     })
     .eq("id", drawId);
 
-  if (drawError) throw new Error(`Draw update failed: ${drawError.message}`);
+  if (updateResult.error) throw new Error(`Draw update failed: ${updateResult.error.message}`);
 
   // 2. Insert winner records
   if (result.winners.length > 0) {
@@ -376,7 +383,7 @@ async function persistDrawResults(
       created_at: new Date().toISOString(),
     }));
 
-    const { error: winnersError } = await supabase
+    const { error: winnersError } = await (supabase as any)
       .from("winners")
       .insert(winnerRows);
 
@@ -385,7 +392,7 @@ async function persistDrawResults(
 
   // 3. Carry jackpot rollover into settings for next draw
   if (result.prizePool.rolledOver > 0) {
-    await supabase
+    await (supabase as any)
       .from("settings")
       .upsert({
         key: "jackpot_rollover_paise",
@@ -394,7 +401,7 @@ async function persistDrawResults(
       });
   } else {
     // Clear rollover once claimed
-    await supabase
+    await (supabase as any)
       .from("settings")
       .delete()
       .eq("key", "jackpot_rollover_paise");

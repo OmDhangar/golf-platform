@@ -13,6 +13,8 @@ export interface AuthTokens {
 
 export interface AuthSession extends AuthTokens {
   role: string;
+  email: string | null;
+  full_name: string | null;
 }
 
 export interface AuthContext {
@@ -28,7 +30,10 @@ interface ClientAuthState {
 
 type Listener = () => void;
 
-let state: ClientAuthState = { session: null };
+let state: ClientAuthState = { 
+  session: typeof window !== "undefined" ? readStorage() : null,
+  context: typeof window !== "undefined" ? readContextStorage() : null
+};
 const listeners = new Set<Listener>();
 
 function notifyListeners(): void {
@@ -55,6 +60,12 @@ function readStorage(): AuthSession | null {
   try {
     const parsed = JSON.parse(raw) as Partial<AuthSession>;
 
+    const legacy = parsed as unknown as {
+      user_email?: unknown;
+      user_role?: unknown;
+      user_full_name?: unknown;
+    };
+
     if (
       typeof parsed.access_token !== "string" ||
       typeof parsed.refresh_token !== "string" ||
@@ -67,7 +78,24 @@ function readStorage(): AuthSession | null {
       access_token: parsed.access_token,
       refresh_token: parsed.refresh_token,
       expires_at: parsed.expires_at,
-      role: typeof parsed.role === "string" ? parsed.role : "user",
+      role:
+        typeof parsed.role === "string"
+          ? parsed.role
+          : typeof legacy.user_role === "string"
+            ? legacy.user_role
+            : "user",
+      email:
+        typeof parsed.email === "string"
+          ? parsed.email
+          : typeof legacy.user_email === "string"
+            ? legacy.user_email
+            : null,
+      full_name:
+        typeof parsed.full_name === "string"
+          ? parsed.full_name
+          : typeof legacy.user_full_name === "string"
+            ? legacy.user_full_name
+            : null,
     };
   } catch {
     return null;
@@ -121,7 +149,7 @@ export function setAuthSession(session: AuthSession): void {
 }
 
 export function setAuthTokens(tokens: AuthTokens): void {
-  setAuthSession({ ...tokens, role: "user" });
+  setAuthSession({ ...tokens, role: "user", email: null, full_name: null });
 }
 
 export function setAuthContext(context: AuthContext): void {
@@ -182,8 +210,10 @@ function getSnapshot(): ClientAuthState {
   return state;
 }
 
+const SERVER_SNAPSHOT: ClientAuthState = { session: null };
+
 function getServerSnapshot(): ClientAuthState {
-  return { session: null };
+  return SERVER_SNAPSHOT;
 }
 
 export function useClientAuthStore(): ClientAuthState {

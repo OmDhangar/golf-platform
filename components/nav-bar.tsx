@@ -3,34 +3,44 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState, useEffect, useRef } from "react";
+import { useClientAuthStore, clearAuthTokens, hydrateAuthStore } from "@/lib/auth/store";
 
-const links = [
+interface NavBarProps {
+  variant?: "dashboard" | "homepage";
+  showAuthButtons?: boolean;
+}
+
+const dashboardLinks = [
   { href: "/dashboard", label: "DASHBOARD" },
   { href: "/draws", label: "MONTHLY DRAW" },
   { href: "/charities", label: "CHARITY" },
-  { href: "/scores", label: "SCORE LOG" },
+  { href: "/results", label: "RESULTS" },
 ];
 
-export default function NavBar() {
+const homepageLinks = [
+  { href: "/", label: "Home" },
+  { href: "/about", label: "About" },
+  { href: "#mechanics", label: "Mechanics" },
+  { href: "#pricing", label: "Pricing" },
+];
+
+export default function NavBar({ variant = "dashboard", showAuthButtons = false }: NavBarProps) {
   const pathname = usePathname();
   const router = useRouter();
   const [showDropdown, setShowDropdown] = useState(false);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
-  const [userEmail, setUserEmail] = useState<string | null>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  
+  const { session } = useClientAuthStore();
+  const isLoggedIn = Boolean(session?.access_token);
+  const userEmail = session?.email;
 
-  // Get user email from session storage on mount
   useEffect(() => {
-    const stored = sessionStorage.getItem("golf_platform_auth");
-    if (stored) {
-      try {
-        const { user_email } = JSON.parse(stored);
-        setUserEmail(user_email);
-      } catch (err) {
-        console.error("Failed to parse auth session:", err);
-      }
-    }
+    hydrateAuthStore();
   }, []);
+
+  // Select appropriate links based on variant
+  const links = variant === "homepage" ? homepageLinks : dashboardLinks;
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -49,8 +59,7 @@ export default function NavBar() {
   }, [showDropdown]);
 
   async function handleLogout() {
-    sessionStorage.removeItem("golf_platform_auth");
-    sessionStorage.removeItem("golf_platform_auth_context");
+    clearAuthTokens();
     router.push("/login");
   }
 
@@ -78,7 +87,7 @@ export default function NavBar() {
         }}
       >
         {/* Logo */}
-        <Link href="/dashboard" style={{ display: "flex", alignItems: "center", gap: 10, textDecoration: "none", flexShrink: 0 }}>
+        <Link href="/" style={{ display: "flex", alignItems: "center", gap: 10, textDecoration: "none", flexShrink: 0 }}>
           <span
             style={{
               width: 28,
@@ -107,7 +116,7 @@ export default function NavBar() {
               whiteSpace: "nowrap",
             }}
           >
-            HEA
+            {"Merit Golf"}
           </span>
         </Link>
 
@@ -115,7 +124,7 @@ export default function NavBar() {
         <nav
           style={{
             display: "flex",
-            gap: 28,
+            gap: variant === "homepage" ? 24 : 28,
             alignItems: "center",
             flex: 1,
             justifyContent: "center",
@@ -124,6 +133,8 @@ export default function NavBar() {
         >
           {links.map((link) => {
             const active = pathname === link.href || pathname.startsWith(link.href + "/");
+            const isHomepageLink = variant === "homepage" && (link.href.startsWith("#"));
+
             return (
               <Link
                 key={link.href}
@@ -133,12 +144,36 @@ export default function NavBar() {
                   fontWeight: 600,
                   fontSize: "0.85rem",
                   letterSpacing: "0.1em",
+                  textTransform: "uppercase",
                   color: active ? "var(--green)" : "var(--text-muted)",
                   textDecoration: "none",
                   paddingBottom: 4,
                   borderBottom: active ? "2px solid var(--green)" : "2px solid transparent",
-                  transition: "color 0.15s",
+                  transition: variant === "homepage" ? "all 0.2s" : "color 0.15s",
                   whiteSpace: "nowrap",
+                  padding: variant === "homepage" ? "8px 12px" : "4px 0",
+                  position: "relative",
+                }}
+                onMouseEnter={(e) => {
+                  if (variant === "homepage") {
+                    e.currentTarget.style.color = "var(--green)";
+                    e.currentTarget.style.transform = "translateY(-1px)";
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (variant === "homepage") {
+                    e.currentTarget.style.color = active ? "var(--green)" : "var(--text-muted)";
+                    e.currentTarget.style.transform = "translateY(0)";
+                  }
+                }}
+                onClick={(e) => {
+                  if (isHomepageLink) {
+                    e.preventDefault();
+                    const element = document.querySelector(link.href);
+                    if (element) {
+                      element.scrollIntoView({ behavior: 'smooth' });
+                    }
+                  }
                 }}
               >
                 {link.label}
@@ -147,203 +182,136 @@ export default function NavBar() {
           })}
         </nav>
 
-        {/* Right Section - User Avatar & Logout */}
+        {/* Right Section - Auth Buttons or User Avatar */}
         <div style={{ display: "flex", alignItems: "center", gap: 16, flexShrink: 0 }}>
-          {/* Hamburger Menu - Mobile Only */}
-          <button
-            onClick={() => setShowMobileMenu(!showMobileMenu)}
-            style={{
-              display: "none",
-              background: "none",
-              border: "none",
-              cursor: "pointer",
-              padding: "8px",
-              color: "var(--text-muted)",
-              "@media (max-width: 767px)": {
-                display: "block",
-              },
-            } as any}
-            aria-label="Toggle menu"
-          >
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <line x1="3" y1="6" x2="21" y2="6" />
-              <line x1="3" y1="12" x2="21" y2="12" />
-              <line x1="3" y1="18" x2="21" y2="18" />
-            </svg>
-          </button>
-
-          {/* User Dropdown */}
-          <div ref={dropdownRef} style={{ position: "relative" }}>
-            <button
-              onClick={() => setShowDropdown(!showDropdown)}
-              style={{
-                width: 36,
-                height: 36,
-                borderRadius: "50%",
-                background: "var(--bg-surface)",
-                border: "1px solid var(--border-light)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                cursor: "pointer",
-                padding: 0,
-                transition: "all 0.2s",
-                boxShadow: showDropdown ? "0 0 0 2px var(--green)" : "none",
-              }}
-              aria-label="User menu"
-              title="User menu"
-            >
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                <circle cx="12" cy="8" r="4" fill="var(--text-muted)" />
-                <path d="M4 20 C4 16 8 13 12 13 C16 13 20 16 20 20" stroke="var(--text-muted)" strokeWidth="2" strokeLinecap="round" />
-              </svg>
-            </button>
-
-            {/* Dropdown Menu */}
-            {showDropdown && (
-              <div
+          {showAuthButtons && !isLoggedIn ? (
+            <>
+              <button
+                onClick={() => router.push("/login")}
                 style={{
-                  position: "absolute",
-                  top: "100%",
-                  right: 0,
-                  marginTop: 8,
-                  background: "var(--bg-card)",
-                  border: "1px solid var(--border)",
-                  borderRadius: 6,
-                  minWidth: 240,
-                  boxShadow: "0 4px 12px rgba(0, 0, 0, 0.15)",
-                  overflow: "hidden",
-                  zIndex: 1000,
+                  background: "transparent",
+                  color: "var(--text-secondary)",
+                  fontFamily: "'Barlow Condensed', sans-serif",
+                  fontWeight: 600,
+                  letterSpacing: "0.1em",
+                  textTransform: "uppercase",
+                  border: "1px solid var(--border-light)",
+                  borderRadius: 4,
+                  padding: "10px 20px",
+                  cursor: "pointer",
+                  fontSize: "0.85rem",
+                  transition: "border-color 0.15s, color 0.15s",
                 }}
               >
-                {/* User Info Section */}
-                <div
+                LOGIN
+              </button>
+              <button
+                onClick={() => router.push("/signup")}
+                style={{
+                  background: "var(--green)",
+                  color: "#000",
+                  fontFamily: "'Barlow Condensed', sans-serif",
+                  fontWeight: 700,
+                  letterSpacing: "0.1em",
+                  textTransform: "uppercase",
+                  border: "none",
+                  borderRadius: 4,
+                  padding: "10px 20px",
+                  cursor: "pointer",
+                  fontSize: "0.85rem",
+                  transition: "background 0.15s",
+                }}
+              >
+                START YOUR JOURNEY
+              </button>
+            </>
+          ) : (
+            <>
+              {/* Hamburger Menu - Mobile Only */}
+              <button
+                onClick={() => setShowMobileMenu(!showMobileMenu)}
+                style={{
+                  display: "none",
+                  background: "none",
+                  border: "none",
+                  cursor: "pointer",
+                  padding: "8px",
+                  color: "var(--text-muted)",
+                } as any}
+                aria-label="Toggle menu"
+              >
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <line x1="3" y1="6" x2="21" y2="6" />
+                  <line x1="3" y1="12" x2="21" y2="12" />
+                  <line x1="3" y1="18" x2="21" y2="18" />
+                </svg>
+              </button>
+
+              {/* User Dropdown Container */}
+              <div ref={dropdownRef} style={{ position: "relative" }}>
+                <button
+                  onClick={() => setShowDropdown(!showDropdown)}
                   style={{
-                    padding: "12px 16px",
-                    borderBottom: "1px solid var(--border)",
-                    backgroundColor: "var(--bg-surface)",
+                    width: 36,
+                    height: 36,
+                    borderRadius: "50%",
+                    background: "var(--bg-surface)",
+                    border: "1px solid var(--border-light)",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    cursor: "pointer",
+                    padding: 0,
+                    transition: "all 0.2s",
+                    boxShadow: showDropdown ? "0 0 0 2px var(--green)" : "none",
                   }}
+                  aria-label="User menu"
                 >
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                    <circle cx="12" cy="8" r="4" fill="var(--text-muted)" />
+                    <path d="M4 20 C4 16 8 13 12 13 C16 13 20 16 20 20" stroke="var(--text-muted)" strokeWidth="2" strokeLinecap="round" />
+                  </svg>
+                </button>
+
+                {showDropdown && (
                   <div
                     style={{
-                      fontSize: "0.75rem",
-                      color: "var(--text-muted)",
-                      textTransform: "uppercase",
-                      letterSpacing: "0.05em",
-                      marginBottom: 4,
+                      position: "absolute",
+                      top: "100%",
+                      right: 0,
+                      marginTop: 8,
+                      background: "var(--bg-card)",
+                      border: "1px solid var(--border)",
+                      borderRadius: 6,
+                      minWidth: 240,
+                      boxShadow: "0 4px 12px rgba(0, 0, 0, 0.15)",
+                      overflow: "hidden",
+                      zIndex: 1000,
                     }}
                   >
-                    Account
+                    <div style={{ padding: "12px 16px", borderBottom: "1px solid var(--border)", backgroundColor: "var(--bg-surface)" }}>
+                      <div style={{ fontSize: "0.75rem", color: "var(--text-muted)", textTransform: "uppercase", marginBottom: 4 }}>Account</div>
+                      <div style={{ fontSize: "0.9rem", color: "var(--text-primary)", fontWeight: 600, wordBreak: "break-all" }}>{userEmail || "User"}</div>
+                    </div>
+                    <div style={{ padding: "8px 0" }}>
+                      <Link href="/dashboard" onClick={() => setShowDropdown(false)} style={{ display: "block", padding: "12px 16px", fontSize: "0.9rem", color: "var(--text-primary)", textDecoration: "none" }}>📊 Dashboard</Link>
+                      <button onClick={() => { setShowDropdown(false); handleLogout(); }} style={{ width: "100%", padding: "12px 16px", fontSize: "0.9rem", color: "#ef4444", background: "none", border: "none", cursor: "pointer", textAlign: "left" }}>🚪 Logout</button>
+                    </div>
                   </div>
-                  <div
-                    style={{
-                      fontSize: "0.9rem",
-                      color: "var(--text-primary)",
-                      fontWeight: 600,
-                      wordBreak: "break-all",
-                    }}
-                  >
-                    {userEmail || "User"}
-                  </div>
-                </div>
-
-                {/* Menu Items */}
-                <div style={{ padding: "8px 0" }}>
-                  <Link
-                    href="/dashboard"
-                    onClick={() => setShowDropdown(false)}
-                    style={{
-                      display: "block",
-                      padding: "12px 16px",
-                      fontSize: "0.9rem",
-                      color: "var(--text-primary)",
-                      textDecoration: "none",
-                      transition: "background 0.15s",
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.background = "var(--bg-surface)";
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.background = "transparent";
-                    }}
-                  >
-                    Dashboard
-                  </Link>
-
-                  <div
-                    style={{
-                      height: "1px",
-                      background: "var(--border)",
-                      margin: "8px 0",
-                    }}
-                  />
-
-                  <button
-                    onClick={() => {
-                      setShowDropdown(false);
-                      handleLogout();
-                    }}
-                    style={{
-                      width: "100%",
-                      padding: "12px 16px",
-                      fontSize: "0.9rem",
-                      color: "#ef4444",
-                      background: "none",
-                      border: "none",
-                      cursor: "pointer",
-                      textAlign: "left",
-                      transition: "background 0.15s",
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.background = "var(--bg-surface)";
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.background = "transparent";
-                    }}
-                  >
-                    Logout
-                  </button>
-                </div>
+                )}
               </div>
-            )}
-          </div>
-        </div>
-      </div>
+            </>
+          )}
+        </div> {/* Closes Right Section */}
+      </div> {/* Closes Max-Width Container */}
 
-      {/* Mobile Menu */}
+      {/* Mobile Menu Overlay */}
       {showMobileMenu && (
-        <nav
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            gap: 0,
-            padding: "12px 0",
-            borderTop: "1px solid var(--border)",
-            background: "var(--bg-surface)",
-            width: "100%",
-          }}
-        >
+        <nav style={{ display: "flex", flexDirection: "column", padding: "12px 0", borderTop: "1px solid var(--border)", background: "var(--bg-surface)", width: "100%" }}>
           {links.map((link) => {
             const active = pathname === link.href || pathname.startsWith(link.href + "/");
             return (
-              <Link
-                key={link.href}
-                href={link.href}
-                onClick={() => setShowMobileMenu(false)}
-                style={{
-                  fontFamily: "'Barlow Condensed', sans-serif",
-                  fontWeight: 600,
-                  fontSize: "0.85rem",
-                  letterSpacing: "0.1em",
-                  color: active ? "var(--green)" : "var(--text-muted)",
-                  textDecoration: "none",
-                  padding: "12px 24px",
-                  borderLeft: active ? "3px solid var(--green)" : "3px solid transparent",
-                  transition: "all 0.15s",
-                  display: "block",
-                  backgroundColor: active ? "var(--bg-deep)" : "transparent",
-                }}
-              >
+              <Link key={link.href} href={link.href} onClick={() => setShowMobileMenu(false)} style={{ color: active ? "var(--green)" : "var(--text-muted)", textDecoration: "none", padding: "12px 24px", display: "block", borderLeft: active ? "3px solid var(--green)" : "3px solid transparent" }}>
                 {link.label}
               </Link>
             );

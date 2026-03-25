@@ -17,7 +17,12 @@ export interface SignupInput {
 }
 
 export interface LoginResponse extends AuthTokens {
-    user: unknown;
+    user: {
+        id: string;
+        email: string;
+        full_name: string;
+        role: string;
+    } | null;
     subscription: {
         id: string;
         status: SubscriptionStatus;
@@ -35,13 +40,16 @@ export const auth = {
             body: payload,
         });
 
-        const role = ((data.user as { role?: string } | null)?.role ?? "user");
+        const user = data.user as { role?: string; email?: string; full_name?: string } | null;
+        const role = user?.role ?? "user";
 
         setAuthSession({
             access_token: data.access_token,
             refresh_token: data.refresh_token,
             expires_at: data.expires_at,
             role,
+            email: user?.email ?? null,
+            full_name: user?.full_name ?? null,
         });
 
         setAuthContext({
@@ -65,13 +73,16 @@ export const auth = {
             body: payload,
         });
 
-        const role = ((data.user as { role?: string } | null)?.role ?? "user");
+        const user = data.user as { role?: string; email?: string; full_name?: string } | null;
+        const role = user?.role ?? "user";
 
         setAuthSession({
             access_token: data.access_token,
             refresh_token: data.refresh_token,
             expires_at: data.expires_at,
             role,
+            email: user?.email ?? null,
+            full_name: user?.full_name ?? null,
         });
 
         setAuthContext({

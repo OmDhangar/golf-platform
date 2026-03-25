@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { headers } from "next/headers";
 import NavBar from "@/components/nav-bar";
 
 type Draw = {
@@ -12,12 +11,12 @@ type Draw = {
 };
 
 async function getPublishedDraws(): Promise<Draw[]> {
-    const headerStore = await headers();
-    const host = headerStore.get("host");
-    const protocol = headerStore.get("x-forwarded-proto") ?? "http";
-    const baseUrl = host ? `${protocol}://${host}` : "";
+    // In Server Components, we can use absolute URLs or a relative fetch if configured, 
+    // but here we can just call our internal logic or use the absolute URL from env if available.
+    // For local dev, we often use the host header.
+    const host = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
 
-    const res = await fetch(`${baseUrl}/api/draws/publish`, {
+    const res = await fetch(`${host}/api/draws/publish`, {
         cache: "no-store",
     });
 
@@ -262,6 +261,7 @@ export default async function ResultsPage() {
                         </p>
                         <Link
                             href="/subscribe"
+                            className="btn-primary"
                             style={{
                                 display: "inline-block",
                                 padding: "12px 24px",
@@ -275,12 +275,6 @@ export default async function ResultsPage() {
                                 letterSpacing: "0.1em",
                                 textTransform: "uppercase",
                                 transition: "background 0.15s",
-                            }}
-                            onMouseEnter={(e) => {
-                                e.currentTarget.style.background = "var(--green-bright)";
-                            }}
-                            onMouseLeave={(e) => {
-                                e.currentTarget.style.background = "var(--green)";
                             }}
                         >
                             Upgrade Now

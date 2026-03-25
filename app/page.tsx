@@ -1,26 +1,34 @@
 "use client"
 import Link from "next/link";
+import { Button } from '@/components/Button';
+import { ImageOverlayCard } from '@/components/ImageOverlayCard';
+import { PricingCard } from '@/components/PricingCard';
+import NavBar from '@/components/nav-bar';
 
 const mechanics = [
   {
-    title: "CHOOSE YOUR STAKES",
-    desc: "Join the collective roster. Track your play, book the full experience of the NBA ecosystem with ties to each.",
-    icon: "🎯",
+    step: "01",
+    title: "INITIATE",
+    desc: "Join the collective roster. Track your play, book the full experience of the golf ecosystem with ties to each.",
+    image: "/mechanics-subscribe.png",
   },
   {
-    title: "SCORE",
+    step: "02",
+    title: "EXECUTE",
     desc: "Hit the links and record every round. Each score entry can become practical support for causes you care about.",
-    icon: "📊",
+    image: "/mechanics-score.png",
   },
   {
-    title: "GIVE BACK",
-    desc: "A percentage of every entry is allocated to verify good causes, see your impact grow through monthly analytics.",
-    icon: "🤝",
+    step: "03",
+    title: "IMPACT",
+    desc: "A percentage of every entry is allocated to verified good causes, see your impact grow through monthly analytics.",
+    image: "/mechanics-impact.png",
   },
   {
-    title: "WIN CLAIMS",
+    step: "04",
+    title: "REWARD",
     desc: "Pro members are automatically entered into monthly draws for exclusive prizes, drawn randomly from the vault.",
-    icon: "🏆",
+    image: "/mechanics-win.png",
   },
 ];
 
@@ -28,7 +36,7 @@ const pricingPlans = [
   {
     name: "AMATEUR",
     price: "$0",
-    period: "/month",
+    period: "/ month",
     features: [
       "Basic Score Logging",
       "Charity Selection",
@@ -39,16 +47,16 @@ const pricingPlans = [
     highlighted: false,
   },
   {
-    name: "PROFESSIONAL",
+    name: "TOUR PRO",
     price: "$24",
-    period: "/month",
+    period: "/ month",
     features: [
       "Unlimited Score Logging",
       "Sharing & Analytics Dashboard",
       "Monthly Draw Eligibility",
       "Premium Insights & Analytics Dashboard",
     ],
-    cta: "SUBSCRIBE NOW",
+    cta: "SIGN UP NOW",
     highlighted: true,
   },
 ];
@@ -105,103 +113,7 @@ export default function HomePage() {
       {/* Hero Section */}
       <section style={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}>
         {/* Navigation */}
-        <header
-          style={{
-            background: "var(--bg-card)",
-            borderBottom: "1px solid var(--border)",
-            padding: "16px 24px",
-          }}
-        >
-          <div
-            style={{
-              maxWidth: 1200,
-              margin: "0 auto",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-            }}
-          >
-            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-              <span
-                style={{
-                  width: 32,
-                  height: 32,
-                  background: "var(--green)",
-                  borderRadius: 4,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  flexShrink: 0,
-                }}
-              >
-                <svg width="18" height="18" viewBox="0 0 16 16" fill="none">
-                  <path
-                    d="M3 13 L8 2 L13 13"
-                    stroke="#000"
-                    strokeWidth="2.2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                  <path
-                    d="M5 9 L11 9"
-                    stroke="#000"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                  />
-                </svg>
-              </span>
-              <span
-                style={{
-                  fontFamily: "'Barlow Condensed', sans-serif",
-                  fontWeight: 700,
-                  fontSize: "1rem",
-                  letterSpacing: "0.04em",
-                  textTransform: "uppercase",
-                }}
-              >
-                High-Energy Athletic
-              </span>
-            </div>
-
-            <div style={{ display: "flex", gap: 16 }}>
-              <Link
-                href="/login"
-                style={{
-                  fontFamily: "'Barlow Condensed', sans-serif",
-                  fontWeight: 600,
-                  fontSize: "0.85rem",
-                  letterSpacing: "0.1em",
-                  textTransform: "uppercase",
-                  color: "var(--text-muted)",
-                  textDecoration: "none",
-                  padding: "8px 0",
-                  transition: "color 0.15s",
-                }}
-              >
-                Log in
-              </Link>
-              <button
-                style={{
-                  background: "var(--green)",
-                  color: "#000",
-                  fontFamily: "'Barlow Condensed', sans-serif",
-                  fontWeight: 700,
-                  letterSpacing: "0.1em",
-                  textTransform: "uppercase",
-                  border: "none",
-                  borderRadius: 4,
-                  padding: "10px 20px",
-                  cursor: "pointer",
-                  fontSize: "0.85rem",
-                  transition: "background 0.15s",
-                }}
-                onClick={() => (window.location.href = "/signup")}
-              >
-                START YOUR JOURNEY
-              </button>
-            </div>
-          </div>
-        </header>
+        <NavBar variant="homepage" showAuthButtons={true} />
 
         {/* Hero Content */}
         <div
@@ -213,121 +125,322 @@ export default function HomePage() {
             justifyContent: "center",
             padding: "60px 24px",
             textAlign: "center",
+            backgroundImage: "url(/hero-golf-course.png)",
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+            backgroundAttachment: "fixed",
+            position: "relative",
           }}
         >
-          <p
-            className="label-caps"
-            style={{ color: "var(--green)", marginBottom: 16 }}
-          >
-            GOLF CHARITY PLATFORM
-          </p>
-
-          <h1
-            className="font-barlow"
+          {/* Dark overlay for text readability */}
+          <div
             style={{
-              fontWeight: 800,
-              fontSize: "5.5rem",
-              letterSpacing: "-0.02em",
-              lineHeight: 1.1,
-              marginBottom: 12,
-              maxWidth: 900,
+              position: "absolute",
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              background: "linear-gradient(to bottom, rgba(8, 15, 26, 0.4), rgba(8, 15, 26, 0.8))",
+              zIndex: 1,
             }}
-          >
-            PLAY.
-            <br />
-            <span style={{ color: "var(--green)" }}>GIVE.</span>
-            <br />
-            WIN.
-          </h1>
-
-          <p
-            style={{
-              fontSize: "1.1rem",
-              color: "var(--text-secondary)",
-              maxWidth: 600,
-              marginBottom: 32,
-              lineHeight: 1.6,
-            }}
-          >
-            Fueling competitive self-performance training with philanthropic
-            giving and high-stakes monthly prize pools. Stop playing for nothing.
-          </p>
-
-          <div style={{ display: "flex", gap: 16, justifyContent: "center" }}>
-            <button
-              className="btn-primary"
-              onClick={() => (window.location.href = "/signup")}
-              style={{ cursor: "pointer" }}
+          />
+          
+          <div style={{ position: "relative", zIndex: 2 }}>
+            <h1
+              className="font-barlow"
+              style={{
+                fontWeight: 800,
+                fontSize: "clamp(4rem, 8vw, 7rem)",
+                letterSpacing: "-0.02em",
+                lineHeight: 0.9,
+                marginBottom: 20,
+                maxWidth: "min(1400px, 90vw)",
+                textTransform: "uppercase",
+                textShadow: "0 4px 20px rgba(0,0,0,0.3)",
+              }}
             >
-              START YOUR JOURNEY
-            </button>
-            <button
-              className="btn-ghost"
-              onClick={() => (window.location.href = "/draws")}
-              style={{ cursor: "pointer" }}
+              PLAY.
+              <br />
+              <span style={{ color: "var(--green)" }}>GIVE.</span>
+              <br />
+              WIN.
+            </h1>
+
+            <p
+              style={{
+                fontSize: "clamp(1rem, 2vw, 1.3rem)",
+                color: "var(--text-primary)",
+                maxWidth: "min(800px, 85vw)",
+                marginBottom: 40,
+                lineHeight: 1.7,
+                fontWeight: 400,
+                textShadow: "0 2px 10px rgba(0,0,0,0.5)",
+              }}
             >
-              VIEW PRIZE POOL
-            </button>
+              Finding unique ways to improve your game while giving back. Join a community of like-minded individuals and high achievers monthly, earn prizes, and stop playing for nothing.
+            </p>
+
+            <div style={{ display: "flex", gap: 16, justifyContent: "center" }}>
+              <Button onClick={() => (window.location.href = "/signup")}>
+                START YOUR JOURNEY
+              </Button>
+              <Button variant="ghost" onClick={() => (window.location.href = "/draws")}>
+                VIEW PRIZE POOL
+              </Button>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* The Mechanics Section */}
-      <section style={{ padding: "60px 24px", background: "var(--bg-deep)" }}>
-        <div style={{ maxWidth: 1200, margin: "0 auto" }}>
+      {/* The Mechanics Timeline Section */}
+      <section id="mechanics" style={{ padding: "40px 24px", background: "var(--bg-deep)", position: "relative" }}>
+        <div style={{ maxWidth: 1400, margin: "0 auto" }}>
           <h2
             className="label-caps"
             style={{
               color: "var(--green)",
               textAlign: "center",
-              marginBottom: 48,
+              marginBottom: 12,
+              fontSize: "1.2rem",
+              letterSpacing: "0.1em",
             }}
           >
             THE MECHANICS
           </h2>
-
-          <div
+          
+          <p
             style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
-              gap: 24,
+              textAlign: "center",
+              color: "var(--text-primary)",
+              fontSize: "clamp(1rem, 2vw, 1.3rem)",
+              marginBottom: 40,
+              maxWidth: "min(700px, 85vw)",
+              margin: "0 auto 40px",
+              lineHeight: 1.6,
+              fontWeight: 300,
             }}
           >
-            {mechanics.map((item) => (
+            A SYSTEM OPTIMIZED FOR YOU
+          </p>
+
+          {/* Timeline Container */}
+          <div style={{ position: "relative", padding: "10px 0" }}>
+            {/* Timeline Line */}
+            <div
+              style={{
+                position: "absolute",
+                left: "50%",
+                top: 0,
+                bottom: 0,
+                width: "3px",
+                background: "linear-gradient(to bottom, var(--green), transparent)",
+                transform: "translateX(-50%)",
+                zIndex: 1,
+              }}
+            />
+
+            {/* Timeline Items */}
+            {mechanics.map((item, index) => (
               <div
-                key={item.title}
-                className="hea-card"
+                key={item.step}
                 style={{
-                  padding: 24,
                   display: "flex",
-                  flexDirection: "column",
-                  gap: 16,
-                  transition: "border-color 0.15s",
-                  cursor: "pointer",
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.borderColor = "var(--green)";
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.borderColor = "var(--border)";
+                  alignItems: "center",
+                  marginBottom: index < mechanics.length - 1 ? "40px" : "0",
+                  position: "relative",
+                  zIndex: 2,
                 }}
               >
-                <div style={{ fontSize: "2.5rem" }}>{item.icon}</div>
-                <h3
-                  className="label-caps"
-                  style={{ color: "var(--text-primary)" }}
-                >
-                  {item.title}
-                </h3>
-                <p
-                  style={{
-                    fontSize: "0.9rem",
-                    color: "var(--text-secondary)",
-                    lineHeight: 1.5,
-                  }}
-                >
-                  {item.desc}
-                </p>
+                {/* Left Side - Image for odd items, Content for even */}
+                {index % 2 === 0 ? (
+                  <>
+                    <div style={{ flex: 1, paddingRight: "60px", textAlign: "right" }}>
+                      <div
+                        style={{
+                          background: `url(${item.image})`,
+                          backgroundSize: "cover",
+                          backgroundPosition: "center",
+                          height: "280px",
+                          borderRadius: "12px",
+                          position: "relative",
+                          overflow: "hidden",
+                          boxShadow: "0 10px 40px rgba(0,0,0,0.3)",
+                        }}
+                      >
+                        <div
+                          style={{
+                            position: "absolute",
+                            inset: 0,
+                            background: "linear-gradient(135deg, rgba(8,15,26,0.2), rgba(8,15,26,0.7))",
+                            display: "flex",
+                            alignItems: "flex-end",
+                            padding: "30px",
+                          }}
+                        >
+                          <div>
+                            <div
+                              className="label-caps"
+                              style={{
+                                color: "var(--green)",
+                                fontSize: "0.9rem",
+                                marginBottom: "8px",
+                              }}
+                            >
+                              STEP {item.step}
+                            </div>
+                            <h3
+                              className="label-caps"
+                              style={{
+                                color: "white",
+                                fontSize: "1.8rem",
+                                marginBottom: "12px",
+                                textShadow: "0 2px 10px rgba(0,0,0,0.5)",
+                              }}
+                            >
+                              {item.title}
+                            </h3>
+                            <p
+                              style={{
+                                color: "rgba(255,255,255,0.9)",
+                                fontSize: "0.95rem",
+                                lineHeight: 1.5,
+                                maxWidth: "300px",
+                              }}
+                            >
+                              {item.desc}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Timeline Dot */}
+                    <div
+                      style={{
+                        width: "60px",
+                        height: "60px",
+                        background: "var(--green)",
+                        border: "4px solid var(--bg-deep)",
+                        borderRadius: "50%",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        margin: "0 30px",
+                        boxShadow: "0 0 0 4px rgba(34, 197, 94, 0.2)",
+                        zIndex: 3,
+                      }}
+                    >
+                      <span
+                        className="font-barlow"
+                        style={{
+                          fontWeight: 800,
+                          fontSize: "1.2rem",
+                          color: "var(--bg-deep)",
+                        }}
+                      >
+                        {item.step}
+                      </span>
+                    </div>
+
+                    {/* Right Side - Empty for odd items */}
+                    <div style={{ flex: 1, paddingLeft: "60px" }} />
+                  </>
+                ) : (
+                  /* Even items - content on left, image on right */
+                  <>
+                    {/* Left Side - Empty for even items */}
+                    <div style={{ flex: 1, paddingRight: "60px" }} />
+
+                    {/* Timeline Dot */}
+                    <div
+                      style={{
+                        width: "60px",
+                        height: "60px",
+                        background: "var(--green)",
+                        border: "4px solid var(--bg-deep)",
+                        borderRadius: "50%",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        margin: "0 20px",
+                        boxShadow: "0 0 0 4px rgba(34, 197, 94, 0.2)",
+                        zIndex: 3,
+                      }}
+                    >
+                      <span
+                        className="font-barlow"
+                        style={{
+                          fontWeight: 800,
+                          fontSize: "1.2rem",
+                          color: "var(--bg-deep)",
+                        }}
+                      >
+                        {item.step}
+                      </span>
+                    </div>
+
+                    {/* Right Side - Image for even items */}
+                    <div style={{ flex: 1, paddingLeft: "60px", textAlign: "left" }}>
+                      <div
+                        style={{
+                          background: `url(${item.image})`,
+                          backgroundSize: "cover",
+                          backgroundPosition: "center",
+                          height: "280px",
+                          borderRadius: "12px",
+                          position: "relative",
+                          overflow: "hidden",
+                          boxShadow: "0 10px 40px rgba(0,0,0,0.3)",
+                        }}
+                      >
+                        <div
+                          style={{
+                            position: "absolute",
+                            inset: 0,
+                            background: "linear-gradient(135deg, rgba(8,15,26,0.2), rgba(8,15,26,0.7))",
+                            display: "flex",
+                            alignItems: "flex-end",
+                            padding: "30px",
+                          }}
+                        >
+                          <div>
+                            <div
+                              className="label-caps"
+                              style={{
+                                color: "var(--green)",
+                                fontSize: "0.9rem",
+                                marginBottom: "8px",
+                              }}
+                            >
+                              STEP {item.step}
+                            </div>
+                            <h3
+                              className="label-caps"
+                              style={{
+                                color: "white",
+                                fontSize: "1.8rem",
+                                marginBottom: "12px",
+                                textShadow: "0 2px 10px rgba(0,0,0,0.5)",
+                              }}
+                            >
+                              {item.title}
+                            </h3>
+                            <p
+                              style={{
+                                color: "rgba(255,255,255,0.9)",
+                                fontSize: "0.95rem",
+                                lineHeight: 1.5,
+                                maxWidth: "300px",
+                              }}
+                            >
+                              {item.desc}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </>
+                )}
               </div>
             ))}
           </div>
@@ -335,18 +448,31 @@ export default function HomePage() {
       </section>
 
       {/* Choose Your Stakes - Pricing */}
-      <section style={{ padding: "60px 24px", background: "var(--bg-surface)" }}>
+      <section id="pricing" style={{ padding: "60px 24px", background: "var(--bg-surface)" }}>
         <div style={{ maxWidth: 1200, margin: "0 auto" }}>
           <h2
             className="label-caps"
             style={{
               color: "var(--green)",
               textAlign: "center",
-              marginBottom: 48,
+              marginBottom: 16,
             }}
           >
             CHOOSE YOUR STAKES
           </h2>
+          
+          <p
+            style={{
+              textAlign: "center",
+              color: "var(--text-primary)",
+              fontSize: "1rem",
+              marginBottom: 48,
+              maxWidth: 400,
+              margin: "0 auto 48px",
+            }}
+          >
+            Assess the options below. Find your ideal fit.
+          </p>
 
           <div
             style={{
@@ -358,109 +484,15 @@ export default function HomePage() {
             }}
           >
             {pricingPlans.map((plan) => (
-              <div
+              <PricingCard
                 key={plan.name}
-                className="hea-card"
-                style={{
-                  padding: 32,
-                  display: "flex",
-                  flexDirection: "column",
-                  gap: 20,
-                  border: plan.highlighted
-                    ? "2px solid var(--green)"
-                    : "1px solid var(--border)",
-                  position: "relative",
-                }}
-              >
-                {plan.highlighted && (
-                  <div
-                    style={{
-                      position: "absolute",
-                      top: -12,
-                      left: "50%",
-                      transform: "translateX(-50%)",
-                      background: "var(--green)",
-                      color: "#000",
-                      padding: "4px 12px",
-                      borderRadius: 3,
-                      fontFamily: "'Barlow Condensed', sans-serif",
-                      fontWeight: 700,
-                      fontSize: "0.65rem",
-                      letterSpacing: "0.12em",
-                      textTransform: "uppercase",
-                    }}
-                  >
-                    FEATURED
-                  </div>
-                )}
-
-                <div>
-                  <h3
-                    className="label-caps"
-                    style={{ color: "var(--text-primary)", marginBottom: 12 }}
-                  >
-                    {plan.name}
-                  </h3>
-                  <div
-                    style={{
-                      display: "flex",
-                      alignItems: "baseline",
-                      gap: 4,
-                    }}
-                  >
-                    <span
-                      className="font-barlow"
-                      style={{
-                        fontWeight: 800,
-                        fontSize: "2.5rem",
-                        color: "var(--text-primary)",
-                      }}
-                    >
-                      {plan.price}
-                    </span>
-                    <span
-                      style={{
-                        fontSize: "0.85rem",
-                        color: "var(--text-secondary)",
-                      }}
-                    >
-                      {plan.period}
-                    </span>
-                  </div>
-                </div>
-
-                <ul style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-                  {plan.features.map((feature) => (
-                    <li
-                      key={feature}
-                      style={{
-                        fontSize: "0.9rem",
-                        color: "var(--text-secondary)",
-                        display: "flex",
-                        gap: 8,
-                      }}
-                    >
-                      <span style={{ color: "var(--green)" }}>✓</span>
-                      {feature}
-                    </li>
-                  ))}
-                </ul>
-
-                <button
-                  className="btn-primary"
-                  style={{
-                    width: "100%",
-                    marginTop: "auto",
-                    cursor: "pointer",
-                    background: plan.highlighted
-                      ? "var(--green)"
-                      : "var(--green)",
-                  }}
-                  onClick={() => (window.location.href = "/signup")}
-                >
-                  {plan.cta}
-                </button>
-              </div>
+                name={plan.name}
+                price={plan.price}
+                period={plan.period}
+                features={plan.features}
+                cta={plan.cta}
+                highlighted={plan.highlighted}
+              />
             ))}
           </div>
         </div>
@@ -685,13 +717,9 @@ export default function HomePage() {
             Join the elite group of golfers taking performance seriously. Logging scores never felt so rewarding.
           </p>
 
-          <button
-            className="btn-primary"
-            style={{ cursor: "pointer" }}
-            onClick={() => (window.location.href = "/signup")}
-          >
+          <Button onClick={() => (window.location.href = "/signup")}>
             CREATE ACCOUNT NOW
-          </button>
+          </Button>
         </div>
       </section>
 

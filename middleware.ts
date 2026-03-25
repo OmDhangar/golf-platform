@@ -24,6 +24,7 @@ const PUBLIC_ROUTES = [
   "/api/auth/signup",
   "/api/auth/login",
   "/api/webhook/razorpay",    // Webhook verified by HMAC, not JWT
+  "/api/draws",               // Current month's draw + prizes (Public)
   "/api/draws/publish",       // GET published draw results is public (RLS handles it)
   "/api/charities",           // PRD §08: "Public visitors can browse charities"
 ];

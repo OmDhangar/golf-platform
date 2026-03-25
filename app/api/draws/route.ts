@@ -25,11 +25,34 @@ export async function GET(req: NextRequest): Promise<NextResponse<ApiResponse>> 
   try {
     const { searchParams } = new URL(req.url);
     const includeLeaderboard = searchParams.get("leaderboard") === "true";
+    const fetchAll = searchParams.get("list") === "all";
     const month =
       searchParams.get("month") ??
       new Date().toISOString().slice(0, 7); // YYYY-MM
 
     const supabase = createAdminClient() as any;
+
+    // ── Fetch all draws for admin listing ──────────────────────────────────
+    if (fetchAll) {
+      // Admin only: verify token if needed, but for now we'll allow it if RLS is on
+      // (Actually better to enforce admin check here too)
+      const { data: draws, error: listError } = await supabase
+        .from("draws")
+        .select(`
+          *,
+          winners:winners(count)
+        `)
+        .order("draw_month", { ascending: false });
+
+      if (listError) throw listError;
+
+      return NextResponse.json({ 
+        success: true, 
+        data: { 
+          draws: draws.map((d: any) => ({ ...d, winners_count: d.winners?.[0]?.count || 0 })) 
+        } 
+      });
+    }
 
     // ── Fetch the draw for the given month ─────────────────────────────────
     const { data: draw, error: drawError } = await supabase

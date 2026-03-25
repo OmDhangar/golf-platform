@@ -202,6 +202,28 @@ export default function LoginPage() {
                             {loading ? "SIGNING IN..." : "LOG IN"}
                         </button>
                     </form>
+
+                    {/* Test Credentials Helper */}
+                    <div style={{ marginTop: 28, paddingTop: 20, borderTop: "1px solid var(--border-light)" }}>
+                        <p className="label-caps" style={{ color: "var(--text-muted)", fontSize: "0.65rem", marginBottom: 12 }}>Test Access Credentials</p>
+                        
+                        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+                            <div 
+                                style={{ background: "rgba(255,255,255,0.03)", padding: "10px", borderRadius: 4, cursor: "pointer" }}
+                                onClick={() => { setEmail("test@example.com"); setPassword("Password123"); }}
+                            >
+                                <p style={{ color: "var(--text-primary)", fontSize: "0.7rem", fontWeight: 700, marginBottom: 4 }}>STANDARD USER</p>
+                                <p style={{ color: "var(--text-muted)", fontSize: "0.65rem" }}>test@example.com</p>
+                            </div>
+                            <div 
+                                style={{ background: "rgba(52,199,89,0.05)", padding: "10px", borderRadius: 4, border: "1px solid rgba(52,199,89,0.1)", cursor: "pointer" }}
+                                onClick={() => { setEmail("omdhangar24@gmail.com"); setPassword("Password123"); }}
+                            >
+                                <p style={{ color: "var(--green)", fontSize: "0.7rem", fontWeight: 700, marginBottom: 4 }}>SYSADMIN</p>
+                                <p style={{ color: "var(--text-muted)", fontSize: "0.65rem" }}>omdhangar24@gmail.com</p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 {/* Sign Up Link */}

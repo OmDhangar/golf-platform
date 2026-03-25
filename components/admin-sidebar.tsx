@@ -88,7 +88,7 @@ export default function AdminSidebar() {
             marginTop: 2,
           }}
         >
-          HIGH-ENERGY ATHLETIC
+          MERIT GOLF
         </p>
       </div>
 

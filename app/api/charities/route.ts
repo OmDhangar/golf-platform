@@ -90,7 +90,7 @@ export async function GET(req: NextRequest): Promise<NextResponse<ApiResponse>> 
         data: {
           charities: charities ?? [],
           count: charities?.length ?? 0,
-          featured: (charities ?? []).filter((c) => c.is_featured),
+          featured: (charities ?? []).filter((c: { is_featured: any; }) => c.is_featured),
         },
       },
       { status: 200 }

@@ -27,10 +27,10 @@ export default function AdminReportsPage() {
     };
   }, []);
 
-  if (loading) return <section className="rounded-2xl border bg-white p-5">Loading reports…</section>;
+  if (loading) return <section className="rounded-2xl border bg-var(--bg-deep) p-5">Loading reports…</section>;
 
   return (
-    <section className="space-y-4 rounded-2xl border bg-white p-5">
+    <section className="space-y-4 rounded-2xl  bg-var(--bg-deep) p-5">
       <h2 className="text-xl font-semibold">Analytics dashboards</h2>
       <div className="grid gap-3 md:grid-cols-2">
         <article className="rounded border p-3"><p className="text-xs text-zinc-500">Total users</p><p className="text-2xl font-semibold">{data?.users?.total ?? 0}</p></article>
