@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link";
 
 export default function PaymentSuccessPage() {
@@ -152,29 +154,12 @@ export default function PaymentSuccessPage() {
                     {/* CTA Buttons */}
                     <Link
                         href="/dashboard"
+                        className="btn-primary"
                         style={{
                             display: "block",
-                            padding: "14px 24px",
-                            background: "var(--green)",
-                            color: "#000",
-                            border: "none",
-                            borderRadius: 4,
                             textAlign: "center",
                             textDecoration: "none",
-                            fontFamily: "'Barlow Condensed', sans-serif",
-                            fontWeight: 700,
-                            fontSize: "0.9rem",
-                            letterSpacing: "0.1em",
-                            textTransform: "uppercase",
-                            cursor: "pointer",
-                            transition: "background 0.15s",
                             marginBottom: 12,
-                        }}
-                        onMouseEnter={(e) => {
-                            e.currentTarget.style.background = "var(--green-bright)";
-                        }}
-                        onMouseLeave={(e) => {
-                            e.currentTarget.style.background = "var(--green)";
                         }}
                     >
                         Go to Dashboard
@@ -182,29 +167,11 @@ export default function PaymentSuccessPage() {
 
                     <Link
                         href="/scores"
+                        className="btn-ghost"
                         style={{
                             display: "block",
-                            padding: "12px 24px",
-                            background: "transparent",
-                            color: "var(--text-secondary)",
-                            border: "1px solid var(--border-light)",
-                            borderRadius: 4,
                             textAlign: "center",
                             textDecoration: "none",
-                            fontFamily: "'Barlow Condensed', sans-serif",
-                            fontWeight: 600,
-                            fontSize: "0.9rem",
-                            letterSpacing: "0.1em",
-                            textTransform: "uppercase",
-                            transition: "all 0.15s",
-                        }}
-                        onMouseEnter={(e) => {
-                            e.currentTarget.style.borderColor = "var(--text-secondary)";
-                            e.currentTarget.style.color = "var(--text-primary)";
-                        }}
-                        onMouseLeave={(e) => {
-                            e.currentTarget.style.borderColor = "var(--border-light)";
-                            e.currentTarget.style.color = "var(--text-secondary)";
                         }}
                     >
                         Log Your First Score
