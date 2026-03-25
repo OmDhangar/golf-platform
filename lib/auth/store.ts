@@ -110,7 +110,7 @@ function readContextStorage(): AuthContext | null {
 }
 
 export function hydrateAuthStore(): void {
-  state = { session: readStorage() };
+  state = { session: readStorage(), context: readContextStorage() };
   notifyListeners();
 }
 
@@ -132,8 +132,9 @@ export function setAuthContext(context: AuthContext): void {
 
 
 export function clearAuthTokens(): void {
-  state = { session: null };
+  state = { session: null, context: null };
   writeStorage(null);
+  writeContextStorage(null);
   notifyListeners();
 }
 
@@ -161,7 +162,7 @@ export function getAuthContext(): AuthContext | null {
     state = { ...state, context: readContextStorage() };
   }
 
-  return state.context;
+  return state.context ?? null;
 }
 
 export function getAccessToken(): string | null {

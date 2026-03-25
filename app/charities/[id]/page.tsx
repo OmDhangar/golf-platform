@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { headers } from "next/headers";
 import { notFound } from "next/navigation";
+import NavBar from "@/components/nav-bar";
 import type { Charity, CharityEvent } from "@/types";
 
 function parseEvents(events: Charity["events"] | string | null): CharityEvent[] {
@@ -42,58 +43,150 @@ export default async function CharityDetailPage({ params }: { params: Promise<{ 
     const events = parseEvents(charity.events);
 
     return (
-        <main className="min-h-screen bg-white px-6 py-12 sm:px-10">
-            <div className="mx-auto w-full max-w-4xl space-y-8">
-                <header className="flex flex-wrap items-start justify-between gap-3">
-                    <div className="space-y-2">
-                        <Link href="/charities" className="text-sm font-medium text-rose-700 hover:text-rose-500">
-                            ← Back to charities
-                        </Link>
-                        <h1 className="text-4xl font-semibold text-zinc-900">{charity.name}</h1>
-                    </div>
-                    <div className="flex gap-3">
-                        <Link href="/login" className="rounded-full border border-zinc-300 px-4 py-2 text-sm font-medium">
-                            Log in
-                        </Link>
-                        <Link href="/signup" className="rounded-full bg-zinc-900 px-4 py-2 text-sm font-semibold text-white">
-                            Sign up
-                        </Link>
-                    </div>
+        <div style={{ minHeight: "100vh", background: "var(--bg-deep)" }}>
+            <NavBar />
+
+            <main style={{ maxWidth: 900, margin: "0 auto", padding: "32px 24px" }}>
+                {/* Back Link */}
+                <Link
+                    href="/charities"
+                    style={{
+                        display: "inline-flex",
+                        alignItems: "center",
+                        fontSize: "0.85rem",
+                        color: "var(--green)",
+                        textDecoration: "none",
+                        fontFamily: "'Barlow Condensed', sans-serif",
+                        fontWeight: 600,
+                        marginBottom: 24,
+                        transition: "opacity 0.15s",
+                    }}
+                    onMouseEnter={(e) => (e.currentTarget.style.opacity = "0.7")}
+                    onMouseLeave={(e) => (e.currentTarget.style.opacity = "1")}
+                >
+                    ← Back to Charities
+                </Link>
+
+                {/* Header */}
+                <header style={{ marginBottom: 32 }}>
+                    <h1
+                        className="font-barlow"
+                        style={{
+                            fontWeight: 800,
+                            fontSize: "2.5rem",
+                            letterSpacing: "0.04em",
+                            textTransform: "uppercase",
+                            color: "var(--text-primary)",
+                            marginBottom: 12,
+                        }}
+                    >
+                        {charity.name}
+                    </h1>
                 </header>
 
-                <section className="rounded-2xl border border-zinc-200 bg-zinc-50 p-6">
-                    <p className="leading-7 text-zinc-700">{charity.description}</p>
+                {/* Description Section */}
+                <section className="hea-card" style={{ padding: 24, marginBottom: 32 }}>
+                    <p
+                        style={{
+                            fontSize: "0.95rem",
+                            color: "var(--text-secondary)",
+                            lineHeight: 1.7,
+                            marginBottom: 16,
+                        }}
+                    >
+                        {charity.description}
+                    </p>
                     {charity.website_url && (
                         <a
                             href={charity.website_url}
                             target="_blank"
                             rel="noreferrer"
-                            className="mt-4 inline-flex text-sm font-semibold text-rose-700 hover:text-rose-500"
+                            style={{
+                                display: "inline-flex",
+                                fontSize: "0.85rem",
+                                color: "var(--green)",
+                                textDecoration: "none",
+                                fontFamily: "'Barlow Condensed', sans-serif",
+                                fontWeight: 700,
+                                letterSpacing: "0.08em",
+                                textTransform: "uppercase",
+                            }}
                         >
-                            Visit official website ↗
+                            Visit Official Website ↗
                         </a>
                     )}
                 </section>
 
+                {/* Events Section */}
                 <section>
-                    <h2 className="text-xl font-semibold text-zinc-900">Upcoming and recent events</h2>
-                    <ul className="mt-4 space-y-3">
+                    <h2
+                        className="label-caps"
+                        style={{
+                            color: "var(--green)",
+                            marginBottom: 20,
+                        }}
+                    >
+                        Upcoming & Recent Events
+                    </h2>
+                    <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
                         {events.length > 0 ? (
                             events.map((event) => (
-                                <li key={`${event.title}-${event.date}`} className="rounded-2xl border border-zinc-200 p-4">
-                                    <p className="font-semibold text-zinc-900">{event.title}</p>
-                                    <p className="text-sm text-zinc-500">{event.date}</p>
-                                    {event.description && <p className="mt-2 text-sm text-zinc-700">{event.description}</p>}
-                                </li>
+                                <div key={`${event.title}-${event.date}`} className="hea-card" style={{ padding: 20 }}>
+                                    <h3
+                                        style={{
+                                            fontFamily: "'Barlow Condensed', sans-serif",
+                                            fontWeight: 700,
+                                            fontSize: "1rem",
+                                            color: "var(--text-primary)",
+                                            marginBottom: 8,
+                                        }}
+                                    >
+                                        {event.title}
+                                    </h3>
+                                    <p
+                                        style={{
+                                            fontSize: "0.85rem",
+                                            color: "var(--text-muted)",
+                                            marginBottom: 12,
+                                        }}
+                                    >
+                                        {event.date}
+                                    </p>
+                                    {event.description && (
+                                        <p
+                                            style={{
+                                                fontSize: "0.9rem",
+                                                color: "var(--text-secondary)",
+                                                lineHeight: 1.5,
+                                            }}
+                                        >
+                                            {event.description}
+                                        </p>
+                                    )}
+                                </div>
                             ))
                         ) : (
-                            <li className="rounded-2xl border border-dashed border-zinc-300 p-4 text-sm text-zinc-500">
-                                Event updates will appear here soon.
-                            </li>
+                            <div
+                                style={{
+                                    padding: 24,
+                                    background: "var(--bg-card)",
+                                    border: "1px dashed var(--border)",
+                                    borderRadius: 6,
+                                }}
+                            >
+                                <p
+                                    style={{
+                                        fontSize: "0.85rem",
+                                        color: "var(--text-muted)",
+                                    }}
+                                >
+                                    Event updates will appear here soon.
+                                </p>
+                            </div>
                         )}
-                    </ul>
+                    </div>
                 </section>
-            </div>
-        </main>
+            </main>
+        </div>
     );
 }

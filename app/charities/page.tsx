@@ -1,139 +1,222 @@
 import Link from "next/link";
 import { headers } from "next/headers";
 import type { Charity, CharityEvent } from "@/types";
+import NavBar from "@/components/nav-bar";
+
+const STATIC_CHARITIES = [
+  {
+    id: "ocean-conservancy",
+    name: "OCEAN CONSERVANCY",
+    description: "Protecting vulnerable marine ecosystems and funding rapid-response cleanup initiatives...",
+    category: "ENVIRONMENT",
+    image: "/charity-ocean.png",
+    generated: "$125,000",
+  },
+  {
+    id: "youth-on-course",
+    name: "YOUTH ON COURSE",
+    description: "Providing accessible rounds, caddie programs, and college scholarships to high school...",
+    category: "YOUTH ATHLETICS",
+    image: "/charity-golf-youth.png",
+    generated: "$430,000",
+  },
+  {
+    id: "nature-conservancy",
+    name: "NATURE CONSERVANCY",
+    description: "Conserving the lands and waters on which all life depends through data-driven land acquisition.",
+    category: "ENVIRONMENT",
+    image: "/charity-nature.png",
+    generated: "$75,000",
+  },
+  {
+    id: "wounded-warrior",
+    name: "WOUNDED WARRIOR",
+    description: "Rehabilitation and athletic programs designed for veterans recovering from physical and...",
+    category: "HEALTH & WELLNESS",
+    image: "/charity-warrior.png",
+    generated: "$315,000",
+  },
+  {
+    id: "clean-water-action",
+    name: "CLEAN WATER ACTION",
+    description: "Protecting municipal water sources and combating industrial runoff near recreational areas.",
+    category: "ENVIRONMENT",
+    image: "/charity-water.png",
+    generated: "$85,000",
+  },
+  {
+    id: "first-tee",
+    name: "FIRST TEE",
+    description: "Integrating life skills and character education through the game of golf for inner-city youth.",
+    category: "YOUTH ATHLETICS",
+    image: "/charity-first-tee.png",
+    generated: "$210,000",
+  },
+];
+
+const ALL_CATEGORIES = ["ALL INITIATIVES", "ENVIRONMENT", "YOUTH ATHLETICS", "HEALTH & WELLNESS"];
 
 function parseEvents(events: Charity["events"] | string | null): CharityEvent[] {
-    if (!events) return [];
-    if (Array.isArray(events)) return events;
-    if (typeof events === "string") {
-        try {
-            const parsed: unknown = JSON.parse(events);
-            return Array.isArray(parsed) ? (parsed as CharityEvent[]) : [];
-        } catch {
-            return [];
-        }
-    }
-    return [];
+  if (!events) return [];
+  if (Array.isArray(events)) return events;
+  if (typeof events === "string") {
+    try {
+      const parsed: unknown = JSON.parse(events);
+      return Array.isArray(parsed) ? (parsed as CharityEvent[]) : [];
+    } catch { return []; }
+  }
+  return [];
 }
 
-async function getCharities(searchParams: { featured?: string; search?: string }): Promise<Charity[]> {
-    const headerStore = await headers();
-    const host = headerStore.get("host");
-    const protocol = headerStore.get("x-forwarded-proto") ?? "http";
-    const baseUrl = host ? `${protocol}://${host}` : "";
-    const params = new URLSearchParams();
-
-    if (searchParams.featured === "true") params.set("featured", "true");
-    if (searchParams.search) params.set("search", searchParams.search);
-
-    const query = params.toString();
-    const res = await fetch(`${baseUrl}/api/charities${query ? `?${query}` : ""}`, {
-        cache: "no-store",
-    });
-
+async function getCharities(searchParams: { featured?: string; search?: string; category?: string }): Promise<Charity[]> {
+  const headerStore = await headers();
+  const host = headerStore.get("host");
+  const protocol = headerStore.get("x-forwarded-proto") ?? "http";
+  const baseUrl = host ? `${protocol}://${host}` : "";
+  const params = new URLSearchParams();
+  if (searchParams.featured === "true") params.set("featured", "true");
+  if (searchParams.search) params.set("search", searchParams.search);
+  const query = params.toString();
+  try {
+    const res = await fetch(`${baseUrl}/api/charities${query ? `?${query}` : ""}`, { cache: "no-store" });
     if (!res.ok) return [];
-
     const payload = (await res.json()) as { success: boolean; data?: { charities?: Charity[] } };
     return payload.success ? payload.data?.charities ?? [] : [];
+  } catch { return []; }
 }
 
 export default async function CharitiesPage({
-    searchParams,
+  searchParams,
 }: {
-    searchParams: Promise<{ featured?: string; search?: string }>;
+  searchParams: Promise<{ featured?: string; search?: string; category?: string }>;
 }) {
-    const query = await searchParams;
-    const charities = await getCharities(query);
+  const query = await searchParams;
+  const activeCategory = query.category ?? "ALL INITIATIVES";
 
-    return (
-        <main className="min-h-screen bg-zinc-50 px-6 py-12 sm:px-10">
-            <div className="mx-auto w-full max-w-6xl space-y-8">
-                <header className="flex flex-wrap items-center justify-between gap-3">
-                    <div>
-                        <p className="text-sm font-semibold uppercase tracking-[0.16em] text-zinc-500">Charities</p>
-                        <h1 className="text-3xl font-semibold text-zinc-900">Support causes with visible community impact</h1>
-                    </div>
-                    <div className="flex gap-3">
-                        <Link href="/login" className="rounded-full border border-zinc-300 px-4 py-2 text-sm font-medium">
-                            Log in
-                        </Link>
-                        <Link href="/signup" className="rounded-full bg-zinc-900 px-4 py-2 text-sm font-semibold text-white">
-                            Sign up
-                        </Link>
-                    </div>
-                </header>
+  const filtered = STATIC_CHARITIES.filter((c) =>
+    activeCategory === "ALL INITIATIVES" ? true : c.category === activeCategory
+  );
 
-                <form className="grid gap-3 rounded-2xl bg-white p-4 shadow-sm sm:grid-cols-[1fr_auto_auto]" method="GET">
-                    <input
-                        type="text"
-                        name="search"
-                        defaultValue={query.search ?? ""}
-                        placeholder="Search charities..."
-                        className="rounded-xl border border-zinc-200 px-4 py-2 outline-none ring-rose-300 focus:ring"
-                    />
-                    <label className="inline-flex items-center gap-2 rounded-xl border border-zinc-200 px-4 py-2 text-sm font-medium">
-                        <input type="checkbox" name="featured" value="true" defaultChecked={query.featured === "true"} />
-                        Featured only
-                    </label>
-                    <button type="submit" className="rounded-xl bg-rose-600 px-4 py-2 text-sm font-semibold text-white">
-                        Apply filters
-                    </button>
-                </form>
+  const totalImpact = 1240500;
 
-                <section className="grid gap-4 md:grid-cols-2">
-                    {charities.map((charity) => {
-                        const events = parseEvents(charity.events);
-                        return (
-                            <article key={charity.id} className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm">
-                                <div className="flex items-start justify-between gap-4">
-                                    <div className="flex items-center gap-3">
-                                        {charity.logo_url ? (
-                                            // eslint-disable-next-line @next/next/no-img-element
-                                            <img
-                                                src={charity.logo_url}
-                                                alt={`${charity.name} logo`}
-                                                className="h-14 w-14 rounded-xl border border-zinc-200 object-cover"
-                                            />
-                                        ) : (
-                                            <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-zinc-100 text-xs font-semibold text-zinc-500">
-                                                LOGO
-                                            </div>
-                                        )}
-                                        <h2 className="text-xl font-semibold text-zinc-900">{charity.name}</h2>
-                                    </div>
-                                    {charity.is_featured && (
-                                        <span className="rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold uppercase tracking-[0.12em] text-amber-700">
-                                            Featured
-                                        </span>
-                                    )}
-                                </div>
+  return (
+    <div style={{ minHeight: "100vh", background: "var(--bg-deep)" }}>
+      <NavBar />
 
-                                <p className="mt-4 text-sm leading-6 text-zinc-600">{charity.description}</p>
+      <main style={{ maxWidth: 1200, margin: "0 auto", padding: "32px 24px" }}>
 
-                                <div className="mt-4">
-                                    <p className="text-xs font-semibold uppercase tracking-[0.12em] text-zinc-500">Event highlights</p>
-                                    <ul className="mt-2 space-y-2 text-sm text-zinc-700">
-                                        {events.length > 0 ? (
-                                            events.slice(0, 2).map((event) => (
-                                                <li key={`${charity.id}-${event.title}-${event.date}`} className="rounded-lg bg-zinc-50 px-3 py-2">
-                                                    <p className="font-medium">{event.title}</p>
-                                                    <p className="text-xs text-zinc-500">{event.date}</p>
-                                                </li>
-                                            ))
-                                        ) : (
-                                            <li className="rounded-lg bg-zinc-50 px-3 py-2 text-zinc-500">No events added yet.</li>
-                                        )}
-                                    </ul>
-                                </div>
+        {/* Impact banner + Category tabs */}
+        <div style={{ display: "flex", alignItems: "flex-end", gap: 40, marginBottom: 36 }}>
+          {/* Impact card */}
+          <div
+            className="hea-card"
+            style={{ padding: "24px 28px", minWidth: 240, background: "var(--bg-card)", flexShrink: 0 }}
+          >
+            <p className="label-caps" style={{ color: "var(--text-muted)", marginBottom: 10 }}>GLOBAL PLATFORM IMPACT</p>
+            <p
+              className="font-barlow"
+              style={{ fontSize: "2.6rem", fontWeight: 800, color: "var(--green)", letterSpacing: "-0.01em" }}
+            >
+              ${totalImpact.toLocaleString()}
+            </p>
+          </div>
 
-                                <Link href={`/charities/${charity.id}`} className="mt-5 inline-flex text-sm font-semibold text-rose-700 hover:text-rose-500">
-                                    View charity profile →
-                                </Link>
-                            </article>
-                        );
-                    })}
-                </section>
+          {/* Category tabs */}
+          <div style={{ display: "flex", gap: 0, alignItems: "flex-end" }}>
+            {ALL_CATEGORIES.map((cat) => {
+              const isActive = activeCategory === cat;
+              return (
+                <Link
+                  key={cat}
+                  href={`/charities?category=${encodeURIComponent(cat)}`}
+                  style={{
+                    display: "block",
+                    padding: "10px 20px",
+                    fontFamily: "'Barlow Condensed', sans-serif",
+                    fontWeight: 700,
+                    fontSize: "0.8rem",
+                    letterSpacing: "0.1em",
+                    textTransform: "uppercase",
+                    color: isActive ? "var(--text-primary)" : "var(--text-muted)",
+                    textDecoration: "none",
+                    borderBottom: isActive ? "2px solid var(--green)" : "2px solid transparent",
+                    borderTop: "none",
+                    background: "none",
+                    transition: "color 0.15s",
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  {cat}
+                </Link>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Charity grid */}
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fill, minmax(230px, 1fr))",
+            gap: 20,
+          }}
+        >
+          {filtered.map((charity) => (
+            <div
+              key={charity.id}
+              className="hea-card"
+              style={{
+                overflow: "hidden",
+                transition: "border-color 0.2s, transform 0.15s",
+                cursor: "pointer",
+                position: "relative",
+              }}
+            >
+              {/* Image */}
+              <div style={{ position: "relative", height: 160, overflow: "hidden" }}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={charity.image}
+                  alt={charity.name}
+                  style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+                />
+                {/* Category badge */}
+                <div
+                  style={{
+                    position: "absolute", top: 10, right: 10,
+                    background: "rgba(0,0,0,0.75)", border: "1px solid rgba(255,255,255,0.15)",
+                    borderRadius: 3, padding: "3px 8px",
+                    fontFamily: "'Barlow Condensed', sans-serif",
+                    fontWeight: 700, fontSize: "0.6rem",
+                    letterSpacing: "0.1em", textTransform: "uppercase",
+                    color: "var(--text-primary)",
+                    backdropFilter: "blur(4px)",
+                  }}
+                >
+                  {charity.category}
+                </div>
+              </div>
+
+              {/* Content */}
+              <div style={{ padding: "16px 18px 14px" }}>
+                <h2
+                  className="font-barlow"
+                  style={{ fontSize: "1.05rem", fontWeight: 800, letterSpacing: "0.04em", textTransform: "uppercase", color: "var(--text-primary)", marginBottom: 8 }}
+                >
+                  {charity.name}
+                </h2>
+                <p style={{ fontSize: "0.78rem", color: "var(--text-secondary)", lineHeight: 1.55, marginBottom: 14 }}>
+                  {charity.description}
+                </p>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", borderTop: "1px solid var(--border)", paddingTop: 12 }}>
+                  <span className="label-caps" style={{ color: "var(--text-muted)" }}>GENERATED</span>
+                  <span className="font-barlow" style={{ fontWeight: 800, fontSize: "1rem", color: "var(--green)" }}>{charity.generated}</span>
+                </div>
+              </div>
             </div>
-        </main>
-    );
+          ))}
+        </div>
+      </main>
+    </div>
+  );
 }

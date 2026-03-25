@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { headers } from "next/headers";
+import NavBar from "@/components/nav-bar";
 
 type Draw = {
     id: string;
@@ -28,7 +29,7 @@ async function getPublishedDraws(): Promise<Draw[]> {
 
 function formatCurrency(paise: number | null) {
     if (paise == null) return "—";
-    return new Intl.NumberFormat("en-US", {
+    return new Intl.NumberFormat("en-IN", {
         style: "currency",
         currency: "INR",
         maximumFractionDigits: 0,
@@ -39,64 +40,254 @@ export default async function ResultsPage() {
     const draws = await getPublishedDraws();
 
     return (
-        <main className="min-h-screen bg-zinc-950 px-6 py-12 text-zinc-100 sm:px-10">
-            <div className="mx-auto w-full max-w-5xl space-y-8">
-                <header className="flex flex-wrap items-start justify-between gap-4">
-                    <div>
-                        <p className="text-sm font-semibold uppercase tracking-[0.16em] text-zinc-400">Published draws</p>
-                        <h1 className="text-3xl font-semibold">Latest official results</h1>
-                    </div>
-                    <div className="flex gap-3">
-                        <Link href="/login" className="rounded-full border border-zinc-700 px-4 py-2 text-sm font-medium">
-                            Log in
-                        </Link>
-                        <Link href="/signup" className="rounded-full bg-white px-4 py-2 text-sm font-semibold text-zinc-900">
-                            Sign up
-                        </Link>
-                    </div>
+        <div style={{ minHeight: "100vh", background: "var(--bg-deep)" }}>
+            <NavBar />
+
+            <main style={{ maxWidth: 1000, margin: "0 auto", padding: "32px 24px" }}>
+                {/* Header */}
+                <header style={{ marginBottom: 32 }}>
+                    <p className="label-caps" style={{ color: "var(--green)", marginBottom: 8 }}>
+                        PUBLISHED DRAWS
+                    </p>
+                    <h1
+                        className="font-barlow"
+                        style={{
+                            fontWeight: 800,
+                            fontSize: "2rem",
+                            letterSpacing: "0.06em",
+                            textTransform: "uppercase",
+                            color: "var(--text-primary)",
+                        }}
+                    >
+                        Latest Official Results
+                    </h1>
                 </header>
 
-                <section className="space-y-4">
+                {/* Draws List */}
+                <section
+                    style={{
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: 20,
+                    }}
+                >
                     {draws.length > 0 ? (
                         draws.map((draw) => (
-                            <article key={draw.id} className="rounded-2xl border border-zinc-800 bg-zinc-900 p-5">
-                                <div className="flex flex-wrap items-center justify-between gap-3">
-                                    <h2 className="text-xl font-semibold">{draw.draw_month}</h2>
-                                    <p className="text-sm text-zinc-400">
-                                        Published: {draw.published_at ? new Date(draw.published_at).toLocaleDateString() : "Unknown"}
+                            <article key={draw.id} className="hea-card" style={{ padding: 24 }}>
+                                {/* Draw Header */}
+                                <div
+                                    style={{
+                                        display: "flex",
+                                        flexWrap: "wrap",
+                                        alignItems: "center",
+                                        justifyContent: "space-between",
+                                        gap: 16,
+                                        marginBottom: 20,
+                                    }}
+                                >
+                                    <h2
+                                        className="font-barlow"
+                                        style={{
+                                            fontWeight: 700,
+                                            fontSize: "1.3rem",
+                                            color: "var(--text-primary)",
+                                        }}
+                                    >
+                                        {draw.draw_month}
+                                    </h2>
+                                    <p
+                                        style={{
+                                            fontSize: "0.85rem",
+                                            color: "var(--text-muted)",
+                                        }}
+                                    >
+                                        Published:{" "}
+                                        {draw.published_at
+                                            ? new Date(draw.published_at).toLocaleDateString()
+                                            : "Unknown"}
                                     </p>
                                 </div>
 
-                                <div className="mt-4 flex flex-wrap gap-2">
-                                    {(draw.winning_numbers ?? []).map((num) => (
-                                        <span
-                                            key={`${draw.id}-${num}`}
-                                            className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-emerald-500/20 text-sm font-semibold text-emerald-300"
-                                        >
-                                            {num}
-                                        </span>
-                                    ))}
+                                {/* Winning Numbers */}
+                                <div style={{ marginBottom: 20 }}>
+                                    <p
+                                        className="label-caps"
+                                        style={{
+                                            color: "var(--text-muted)",
+                                            marginBottom: 12,
+                                        }}
+                                    >
+                                        WINNING NUMBERS
+                                    </p>
+                                    <div
+                                        style={{
+                                            display: "flex",
+                                            flexWrap: "wrap",
+                                            gap: 12,
+                                        }}
+                                    >
+                                        {(draw.winning_numbers ?? []).length > 0 ? (
+                                            (draw.winning_numbers ?? []).map((num) => (
+                                                <span
+                                                    key={`${draw.id}-${num}`}
+                                                    style={{
+                                                        width: 48,
+                                                        height: 48,
+                                                        display: "flex",
+                                                        alignItems: "center",
+                                                        justifyContent: "center",
+                                                        borderRadius: "50%",
+                                                        background: "rgba(34, 197, 94, 0.1)",
+                                                        border: "2px solid var(--green)",
+                                                        fontSize: "1rem",
+                                                        fontWeight: 700,
+                                                        color: "var(--green)",
+                                                    }}
+                                                >
+                                                    {num}
+                                                </span>
+                                            ))
+                                        ) : (
+                                            <p
+                                                style={{
+                                                    fontSize: "0.85rem",
+                                                    color: "var(--text-muted)",
+                                                }}
+                                            >
+                                                Numbers not yet released
+                                            </p>
+                                        )}
+                                    </div>
                                 </div>
 
-                                <dl className="mt-5 grid gap-3 sm:grid-cols-2">
-                                    <div className="rounded-xl bg-zinc-800 p-3">
-                                        <dt className="text-xs uppercase tracking-[0.12em] text-zinc-400">Prize pool</dt>
-                                        <dd className="mt-1 text-lg font-semibold">{formatCurrency(draw.prize_pool_total_paise)}</dd>
+                                {/* Prize Information */}
+                                <div
+                                    style={{
+                                        display: "grid",
+                                        gridTemplateColumns: "1fr 1fr",
+                                        gap: 16,
+                                    }}
+                                >
+                                    <div
+                                        style={{
+                                            padding: 16,
+                                            background: "var(--bg-surface)",
+                                            borderRadius: 4,
+                                            borderLeft: "3px solid var(--green)",
+                                        }}
+                                    >
+                                        <p
+                                            className="label-caps"
+                                            style={{
+                                                color: "var(--text-muted)",
+                                                marginBottom: 8,
+                                            }}
+                                        >
+                                            PRIZE POOL
+                                        </p>
+                                        <p
+                                            className="font-barlow"
+                                            style={{
+                                                fontWeight: 800,
+                                                fontSize: "1.3rem",
+                                                color: "var(--green)",
+                                            }}
+                                        >
+                                            {formatCurrency(draw.prize_pool_total_paise)}
+                                        </p>
                                     </div>
-                                    <div className="rounded-xl bg-zinc-800 p-3">
-                                        <dt className="text-xs uppercase tracking-[0.12em] text-zinc-400">Jackpot rollover</dt>
-                                        <dd className="mt-1 text-lg font-semibold">{formatCurrency(draw.jackpot_rollover_paise)}</dd>
+
+                                    <div
+                                        style={{
+                                            padding: 16,
+                                            background: "var(--bg-surface)",
+                                            borderRadius: 4,
+                                            borderLeft: "3px solid var(--amber)",
+                                        }}
+                                    >
+                                        <p
+                                            className="label-caps"
+                                            style={{
+                                                color: "var(--text-muted)",
+                                                marginBottom: 8,
+                                            }}
+                                        >
+                                            JACKPOT ROLLOVER
+                                        </p>
+                                        <p
+                                            className="font-barlow"
+                                            style={{
+                                                fontWeight: 800,
+                                                fontSize: "1.3rem",
+                                                color: "var(--amber)",
+                                            }}
+                                        >
+                                            {formatCurrency(draw.jackpot_rollover_paise)}
+                                        </p>
                                     </div>
-                                </dl>
+                                </div>
                             </article>
                         ))
                     ) : (
-                        <p className="rounded-2xl border border-dashed border-zinc-700 p-6 text-zinc-400">
-                            No published draws found yet.
-                        </p>
+                        <div
+                            style={{
+                                padding: 32,
+                                background: "var(--bg-card)",
+                                border: "1px dashed var(--border)",
+                                borderRadius: 6,
+                                textAlign: "center",
+                            }}
+                        >
+                            <p style={{ color: "var(--text-muted)", fontSize: "0.9rem" }}>
+                                No published draws found yet. Stay tuned!
+                            </p>
+                        </div>
                     )}
                 </section>
-            </div>
-        </main>
+
+                {/* CTA Section */}
+                {draws.length > 0 && (
+                    <section
+                        style={{
+                            marginTop: 40,
+                            padding: 24,
+                            background: "var(--bg-card)",
+                            border: "1px solid var(--border)",
+                            borderRadius: 6,
+                            textAlign: "center",
+                        }}
+                    >
+                        <p style={{ color: "var(--text-secondary)", marginBottom: 16 }}>
+                            Want to participate in the next draw?
+                        </p>
+                        <Link
+                            href="/subscribe"
+                            style={{
+                                display: "inline-block",
+                                padding: "12px 24px",
+                                background: "var(--green)",
+                                color: "#000",
+                                textDecoration: "none",
+                                borderRadius: 4,
+                                fontFamily: "'Barlow Condensed', sans-serif",
+                                fontWeight: 700,
+                                fontSize: "0.9rem",
+                                letterSpacing: "0.1em",
+                                textTransform: "uppercase",
+                                transition: "background 0.15s",
+                            }}
+                            onMouseEnter={(e) => {
+                                e.currentTarget.style.background = "var(--green-bright)";
+                            }}
+                            onMouseLeave={(e) => {
+                                e.currentTarget.style.background = "var(--green)";
+                            }}
+                        >
+                            Upgrade Now
+                        </Link>
+                    </section>
+                )}
+            </main>
+        </div>
     );
 }

@@ -1,47 +1,25 @@
 "use client";
 
-import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
-import { PropsWithChildren, useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
+import { PropsWithChildren } from "react";
+import AdminSidebar from "@/components/admin-sidebar";
 import { getAccessToken, getUserRole } from "@/lib/auth/store";
 import { admin } from "@/lib/api/endpoints/admin";
 import { ApiClientError } from "@/lib/api/client";
 
-const tabs = [
-  { href: "/admin/users", label: "Users" },
-  { href: "/admin/charities", label: "Charities" },
-  { href: "/admin/draws", label: "Draws" },
-  { href: "/admin/winners", label: "Winners" },
-  { href: "/admin/reports", label: "Reports" },
-];
-
 export default function AdminLayout({ children }: PropsWithChildren) {
   const router = useRouter();
-  const pathname = usePathname();
   const [checking, setChecking] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
-  const activeTab = useMemo(
-    () => tabs.find((tab) => pathname.startsWith(tab.href))?.href,
-    [pathname]
-  );
 
   useEffect(() => {
     async function guardAdminRoute(): Promise<void> {
       const token = getAccessToken();
-      if (!token) {
-        router.replace("/login");
-        return;
-      }
-
+      if (!token) { router.replace("/login"); return; }
       const role = getUserRole();
-      if (role && role !== "admin") {
-        router.replace("/unauthorized");
-        return;
-      }
-
+      if (role && role !== "admin") { router.replace("/unauthorized"); return; }
       try {
-        // Server-side role validation: this endpoint is admin-only.
         await admin.reports({ include: ["users"] });
         setError(null);
       } catch (err) {
@@ -54,47 +32,35 @@ export default function AdminLayout({ children }: PropsWithChildren) {
         setChecking(false);
       }
     }
-
     void guardAdminRoute();
   }, [router]);
 
   if (checking) {
-    return <main className="p-6 text-sm text-zinc-600">Validating admin access…</main>;
+    return (
+      <div style={{ display: "flex", minHeight: "100vh", alignItems: "center", justifyContent: "center", background: "var(--bg-deep)" }}>
+        <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+          {[0, 1, 2].map((i) => (
+            <div key={i} style={{ width: 8, height: 8, borderRadius: "50%", background: "var(--green)", opacity: 0.6, animation: `pulse 1.2s ${i * 0.2}s infinite` }} />
+          ))}
+        </div>
+      </div>
+    );
   }
 
   if (error) {
-    return <main className="p-6 text-sm text-red-700">{error}</main>;
+    return (
+      <div style={{ display: "flex", minHeight: "100vh", alignItems: "center", justifyContent: "center", background: "var(--bg-deep)" }}>
+        <p style={{ color: "var(--red)", fontFamily: "'Inter', sans-serif", fontSize: "0.875rem" }}>{error}</p>
+      </div>
+    );
   }
 
   return (
-    <main className="min-h-screen bg-zinc-50 px-6 py-8">
-      <div className="mx-auto w-full max-w-7xl space-y-6">
-        <header>
-          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-zinc-500">Admin</p>
-          <h1 className="text-3xl font-semibold text-zinc-900">Control panel</h1>
-        </header>
-
-        <nav className="flex flex-wrap gap-2">
-          {tabs.map((tab) => {
-            const active = activeTab === tab.href;
-            return (
-              <Link
-                key={tab.href}
-                href={tab.href}
-                className={`rounded-full border px-4 py-2 text-sm font-medium ${
-                  active
-                    ? "border-zinc-900 bg-zinc-900 text-white"
-                    : "border-zinc-300 bg-white text-zinc-700"
-                }`}
-              >
-                {tab.label}
-              </Link>
-            );
-          })}
-        </nav>
-
+    <div style={{ display: "flex", minHeight: "100vh", background: "var(--bg-deep)" }}>
+      <AdminSidebar />
+      <div style={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden" }}>
         {children}
       </div>
-    </main>
+    </div>
   );
 }

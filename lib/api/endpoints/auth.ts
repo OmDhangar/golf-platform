@@ -11,7 +11,7 @@ export interface SignupInput {
     email: string;
     password: string;
     full_name: string;
-    plan_type: "monthly" | "yearly";
+    plan_type: "free" | "monthly" | "yearly";
     charity_id: string;
     charity_percent: number;
 }
@@ -21,7 +21,7 @@ export interface LoginResponse extends AuthTokens {
     subscription: {
         id: string;
         status: SubscriptionStatus;
-        plan_type: "monthly" | "yearly";
+        plan_type: "free" | "monthly" | "yearly";
         renewal_date: string | null;
     } | null;
     has_active_subscription: boolean;

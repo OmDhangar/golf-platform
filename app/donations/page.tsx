@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useEffect, useMemo, useState } from "react";
+import NavBar from "@/components/nav-bar";
 import { charities } from "@/lib/api/endpoints/charities";
 import {
     donations,
@@ -40,10 +41,10 @@ function formatDate(value: string): string {
     });
 }
 
-function typeBadgeClass(type: DonationType): string {
+function getStatusColor(type: DonationType): {bg: string; color: string; border: string} {
     return type === "independent"
-        ? "bg-emerald-100 text-emerald-800"
-        : "bg-blue-100 text-blue-800";
+        ? { bg: "rgba(34, 197, 94, 0.1)", color: "var(--green)", border: "var(--green-dim)" }
+        : { bg: "rgba(59, 130, 246, 0.1)", color: "#60a5fa", border: "#1e3a5f" };
 }
 
 export default function DonationsPage() {
@@ -189,165 +190,449 @@ export default function DonationsPage() {
     }
 
     return (
-        <main className="min-h-screen bg-zinc-50 px-6 py-10 sm:px-10">
-            <div className="mx-auto w-full max-w-7xl space-y-6">
-                <header>
-                    <p className="text-sm font-semibold uppercase tracking-[0.16em] text-zinc-500">Donations</p>
-                    <h1 className="text-3xl font-semibold text-zinc-900">Manage contributions and track giving history</h1>
+        <div style={{ minHeight: "100vh", background: "var(--bg-deep)" }}>
+            <NavBar />
+
+            <main style={{ maxWidth: 1200, margin: "0 auto", padding: "32px 24px" }}>
+                {/* Header */}
+                <header style={{ marginBottom: 32 }}>
+                    <p className="label-caps" style={{ color: "var(--green)", marginBottom: 8 }}>
+                        DONATIONS
+                    </p>
+                    <h1
+                        className="font-barlow"
+                        style={{
+                            fontWeight: 800,
+                            fontSize: "2rem",
+                            letterSpacing: "0.06em",
+                            textTransform: "uppercase",
+                            color: "var(--text-primary)",
+                        }}
+                    >
+                        Manage Contributions & Impact
+                    </h1>
                 </header>
 
-                {error ? <p className="rounded-xl border border-red-200 bg-red-50 p-4 text-red-700">{error}</p> : null}
-                {message ? <p className="rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-emerald-700">{message}</p> : null}
+                {/* Messages */}
+                {error ? (
+                    <div
+                        style={{
+                            background: "rgba(239, 68, 68, 0.1)",
+                            border: "1px solid #7f1d1d",
+                            borderRadius: 6,
+                            padding: 16,
+                            marginBottom: 24,
+                            color: "var(--red)",
+                            fontSize: "0.9rem",
+                        }}
+                    >
+                        {error}
+                    </div>
+                ) : null}
+                {message ? (
+                    <div
+                        style={{
+                            background: "rgba(34, 197, 94, 0.1)",
+                            border: "1px solid var(--green-dim)",
+                            borderRadius: 6,
+                            padding: 16,
+                            marginBottom: 24,
+                            color: "var(--green)",
+                            fontSize: "0.9rem",
+                        }}
+                    >
+                        {message}
+                    </div>
+                ) : null}
 
-                <section className="grid gap-4 lg:grid-cols-2">
-                    <form onSubmit={handleIndependentSubmit} className="space-y-4 rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm">
-                        <h2 className="text-lg font-semibold text-zinc-900">Independent donation</h2>
-                        <div className="space-y-2">
-                            <label className="text-sm font-medium text-zinc-700" htmlFor="ind-charity">Charity</label>
+                {/* Forms Grid */}
+                <section
+                    style={{
+                        display: "grid",
+                        gridTemplateColumns: "repeat(auto-fit, minmax(350px, 1fr))",
+                        gap: 24,
+                        marginBottom: 32,
+                    }}
+                >
+                    {/* Independent Donation Form */}
+                    <form
+                        onSubmit={handleIndependentSubmit}
+                        className="hea-card"
+                        style={{ padding: 24, display: "flex", flexDirection: "column", gap: 16 }}
+                    >
+                        <h2
+                            className="label-caps"
+                            style={{ color: "var(--green)" }}
+                        >
+                            Make a Donation
+                        </h2>
+
+                        {/* Charity Select */}
+                        <label style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                            <span className="label-caps" style={{ color: "var(--text-muted)" }}>
+                                Select Charity
+                            </span>
                             <select
-                                id="ind-charity"
-                                className="w-full rounded-xl border border-zinc-300 px-3 py-2"
+                                className="hea-input"
+                                style={{ cursor: "pointer" }}
                                 value={independentForm.charity_id}
-                                onChange={(event) => setIndependentForm((prev) => ({ ...prev, charity_id: event.target.value }))}
+                                onChange={(event) =>
+                                    setIndependentForm((prev) => ({ ...prev, charity_id: event.target.value }))
+                                }
                             >
-                                <option value="">Select charity</option>
+                                <option value="">Choose a charity...</option>
                                 {charityOptions.map((charity) => (
-                                    <option key={charity.id} value={charity.id}>{charity.name}</option>
+                                    <option key={charity.id} value={charity.id}>
+                                        {charity.name}
+                                    </option>
                                 ))}
                             </select>
-                        </div>
-                        <div className="space-y-2">
-                            <label className="text-sm font-medium text-zinc-700" htmlFor="amount-paise">Amount (paise)</label>
+                        </label>
+
+                        {/* Amount Input */}
+                        <label style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                            <span className="label-caps" style={{ color: "var(--text-muted)" }}>
+                                Amount (Paise)
+                            </span>
                             <input
-                                id="amount-paise"
                                 type="number"
                                 min={100}
                                 step={1}
                                 value={independentForm.amount_paise}
-                                onChange={(event) => setIndependentForm((prev) => ({ ...prev, amount_paise: event.target.value }))}
-                                className="w-full rounded-xl border border-zinc-300 px-3 py-2"
-                                placeholder="e.g. 5000"
+                                onChange={(event) =>
+                                    setIndependentForm((prev) => ({ ...prev, amount_paise: event.target.value }))
+                                }
+                                className="hea-input"
+                                placeholder="e.g. 5000 (₹50.00)"
                                 required
                             />
-                        </div>
-                        <div className="space-y-2">
-                            <label className="text-sm font-medium text-zinc-700" htmlFor="ind-notes">Notes (optional)</label>
+                            <p
+                                style={{
+                                    fontSize: "0.75rem",
+                                    color: "var(--text-muted)",
+                                }}
+                            >
+                                Minimum ₹1.00 (100 paise)
+                            </p>
+                        </label>
+
+                        {/* Notes */}
+                        <label style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                            <span className="label-caps" style={{ color: "var(--text-muted)" }}>
+                                Notes (Optional)
+                            </span>
                             <textarea
-                                id="ind-notes"
                                 value={independentForm.notes}
-                                onChange={(event) => setIndependentForm((prev) => ({ ...prev, notes: event.target.value }))}
-                                className="w-full rounded-xl border border-zinc-300 px-3 py-2"
-                                rows={3}
+                                onChange={(event) =>
+                                    setIndependentForm((prev) => ({ ...prev, notes: event.target.value }))
+                                }
+                                style={{
+                                    background: "var(--bg-surface)",
+                                    border: "1px solid var(--border)",
+                                    color: "var(--text-primary)",
+                                    borderRadius: 4,
+                                    padding: "10px 14px",
+                                    fontFamily: "'Inter', sans-serif",
+                                    fontSize: "0.875rem",
+                                    outline: "none",
+                                    minHeight: 80,
+                                    resize: "vertical",
+                                }}
+                                placeholder="Add a message (optional)"
                             />
-                        </div>
+                        </label>
+
+                        {/* Submit Button */}
                         <button
                             type="submit"
                             disabled={submittingIndependent}
-                            className="rounded-xl bg-zinc-900 px-4 py-2 text-sm font-semibold text-white disabled:opacity-60"
+                            className="btn-primary"
+                            style={{
+                                marginTop: 8,
+                                cursor: submittingIndependent ? "not-allowed" : "pointer",
+                                opacity: submittingIndependent ? 0.6 : 1,
+                            }}
                         >
-                            {submittingIndependent ? "Submitting..." : "POST /api/donations"}
+                            {submittingIndependent ? "SUBMITTING..." : "DONATE NOW"}
                         </button>
                     </form>
 
-                    <form onSubmit={handleSettingsSubmit} className="space-y-4 rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm">
-                        <h2 className="text-lg font-semibold text-zinc-900">Charity contribution settings</h2>
-                        <div className="space-y-2">
-                            <label className="text-sm font-medium text-zinc-700" htmlFor="charity-percent">Charity percent</label>
+                    {/* Settings Form */}
+                    <form
+                        onSubmit={handleSettingsSubmit}
+                        className="hea-card"
+                        style={{ padding: 24, display: "flex", flexDirection: "column", gap: 16 }}
+                    >
+                        <h2
+                            className="label-caps"
+                            style={{ color: "var(--green)" }}
+                        >
+                            Update Settings
+                        </h2>
+
+                        {/* Charity Percent */}
+                        <label style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                            <span className="label-caps" style={{ color: "var(--text-muted)" }}>
+                                Charity Allocation: {settingsForm.charity_percent}%
+                            </span>
                             <input
-                                id="charity-percent"
-                                type="number"
+                                type="range"
                                 min={10}
                                 max={100}
                                 step={1}
                                 value={settingsForm.charity_percent}
-                                onChange={(event) => setSettingsForm((prev) => ({ ...prev, charity_percent: event.target.value }))}
-                                className="w-full rounded-xl border border-zinc-300 px-3 py-2"
-                                required
+                                onChange={(event) =>
+                                    setSettingsForm((prev) => ({ ...prev, charity_percent: event.target.value }))
+                                }
+                                style={{ cursor: "pointer" }}
                             />
-                        </div>
-                        <div className="space-y-2">
-                            <label className="text-sm font-medium text-zinc-700" htmlFor="settings-charity">New charity (optional)</label>
+                            <p
+                                style={{
+                                    fontSize: "0.75rem",
+                                    color: "var(--text-muted)",
+                                }}
+                            >
+                                % of subscription fees to support your charity
+                            </p>
+                        </label>
+
+                        {/* New Charity Select */}
+                        <label style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                            <span className="label-caps" style={{ color: "var(--text-muted)" }}>
+                                Change Charity (Optional)
+                            </span>
                             <select
-                                id="settings-charity"
-                                className="w-full rounded-xl border border-zinc-300 px-3 py-2"
+                                className="hea-input"
+                                style={{ cursor: "pointer" }}
                                 value={settingsForm.charity_id}
-                                onChange={(event) => setSettingsForm((prev) => ({ ...prev, charity_id: event.target.value }))}
+                                onChange={(event) =>
+                                    setSettingsForm((prev) => ({ ...prev, charity_id: event.target.value }))
+                                }
                             >
                                 <option value="">Keep current charity</option>
                                 {charityOptions.map((charity) => (
-                                    <option key={charity.id} value={charity.id}>{charity.name}</option>
+                                    <option key={charity.id} value={charity.id}>
+                                        {charity.name}
+                                    </option>
                                 ))}
                             </select>
-                        </div>
+                        </label>
+
+                        {/* Submit Button */}
                         <button
                             type="submit"
                             disabled={submittingSettings}
-                            className="rounded-xl bg-rose-600 px-4 py-2 text-sm font-semibold text-white disabled:opacity-60"
+                            className="btn-primary"
+                            style={{
+                                marginTop: 8,
+                                cursor: submittingSettings ? "not-allowed" : "pointer",
+                                opacity: submittingSettings ? 0.6 : 1,
+                            }}
                         >
-                            {submittingSettings ? "Saving..." : "PATCH /api/donations"}
+                            {submittingSettings ? "SAVING..." : "SAVE SETTINGS"}
                         </button>
                     </form>
                 </section>
 
-                <section className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm">
-                    <div className="flex flex-wrap items-center justify-between gap-3">
-                        <h2 className="text-lg font-semibold text-zinc-900">Donation history (GET /api/donations)</h2>
-                        <p className="text-sm text-zinc-600">{historyCount} records</p>
+                {/* Donation History */}
+                <section className="hea-card" style={{ padding: 24 }}>
+                    <div
+                        style={{
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "space-between",
+                            marginBottom: 24,
+                            flexWrap: "wrap",
+                            gap: 16,
+                        }}
+                    >
+                        <h2
+                            className="label-caps"
+                            style={{
+                                color: "var(--green)",
+                            }}
+                        >
+                            Donation History
+                        </h2>
+                        <p
+                            style={{
+                                fontSize: "0.85rem",
+                                color: "var(--text-muted)",
+                            }}
+                        >
+                            {historyCount} Record{historyCount !== 1 ? "s" : ""}
+                        </p>
                     </div>
 
-                    <dl className="mt-4 grid gap-3 sm:grid-cols-3">
-                        <div className="rounded-lg bg-zinc-50 p-3">
-                            <dt className="text-xs uppercase tracking-[0.12em] text-zinc-500">Total donated</dt>
-                            <dd className="mt-1 text-lg font-semibold text-zinc-900">₹{totalDonatedInr}</dd>
+                    {/* Stats Grid */}
+                    <div
+                        style={{
+                            display: "grid",
+                            gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
+                            gap: 16,
+                            marginBottom: 24,
+                        }}
+                    >
+                        <div
+                            style={{
+                                padding: 16,
+                                background: "var(--bg-surface)",
+                                borderRadius: 4,
+                                borderLeft: "3px solid var(--green)",
+                            }}
+                        >
+                            <p className="label-caps" style={{ color: "var(--text-muted)", marginBottom: 8 }}>
+                                Total Donated
+                            </p>
+                            <p
+                                className="font-barlow"
+                                style={{
+                                    fontWeight: 800,
+                                    fontSize: "1.3rem",
+                                    color: "var(--green)",
+                                }}
+                            >
+                                ₹{totalDonatedInr}
+                            </p>
                         </div>
-                        <div className="rounded-lg bg-zinc-50 p-3">
-                            <dt className="text-xs uppercase tracking-[0.12em] text-zinc-500">Independent total</dt>
-                            <dd className="mt-1 text-lg font-semibold text-zinc-900">{formatInrFromPaise(donationTotals.independentPaise)}</dd>
-                        </div>
-                        <div className="rounded-lg bg-zinc-50 p-3">
-                            <dt className="text-xs uppercase tracking-[0.12em] text-zinc-500">Subscription share total</dt>
-                            <dd className="mt-1 text-lg font-semibold text-zinc-900">{formatInrFromPaise(donationTotals.subscriptionSharePaise)}</dd>
-                        </div>
-                    </dl>
 
+                        <div
+                            style={{
+                                padding: 16,
+                                background: "var(--bg-surface)",
+                                borderRadius: 4,
+                                borderLeft: "3px solid var(--green)",
+                            }}
+                        >
+                            <p className="label-caps" style={{ color: "var(--text-muted)", marginBottom: 8 }}>
+                                Independent
+                            </p>
+                            <p
+                                className="font-barlow"
+                                style={{
+                                    fontWeight: 800,
+                                    fontSize: "1.3rem",
+                                    color: "var(--green)",
+                                }}
+                            >
+                                {formatInrFromPaise(donationTotals.independentPaise)}
+                            </p>
+                        </div>
+
+                        <div
+                            style={{
+                                padding: 16,
+                                background: "var(--bg-surface)",
+                                borderRadius: 4,
+                                borderLeft: "3px solid #60a5fa",
+                            }}
+                        >
+                            <p className="label-caps" style={{ color: "var(--text-muted)", marginBottom: 8 }}>
+                                Subscription Share
+                            </p>
+                            <p
+                                className="font-barlow"
+                                style={{
+                                    fontWeight: 800,
+                                    fontSize: "1.3rem",
+                                    color: "#60a5fa",
+                                }}
+                            >
+                                {formatInrFromPaise(donationTotals.subscriptionSharePaise)}
+                            </p>
+                        </div>
+                    </div>
+
+                    {/* Donation Table */}
                     {loading ? (
-                        <p className="mt-4 text-sm text-zinc-500">Loading history...</p>
-                    ) : history.length === 0 ? (
-                        <p className="mt-4 rounded-lg border border-dashed border-zinc-300 bg-zinc-50 p-3 text-sm text-zinc-500">
-                            No donations yet. Your first contribution will appear here.
+                        <p
+                            style={{
+                                fontSize: "0.85rem",
+                                color: "var(--text-muted)",
+                                textAlign: "center",
+                                padding: 24,
+                            }}
+                        >
+                            Loading donation history...
                         </p>
+                    ) : history.length === 0 ? (
+                        <div
+                            style={{
+                                padding: 24,
+                                background: "var(--bg-surface)",
+                                borderRadius: 4,
+                                border: "1px dashed var(--border)",
+                                textAlign: "center",
+                            }}
+                        >
+                            <p
+                                style={{
+                                    fontSize: "0.85rem",
+                                    color: "var(--text-muted)",
+                                }}
+                            >
+                                No donations yet. Your contributions will appear here.
+                            </p>
+                        </div>
                     ) : (
-                        <div className="mt-4 overflow-x-auto">
-                            <table className="min-w-full text-left text-sm">
-                                <thead className="text-xs uppercase tracking-[0.12em] text-zinc-500">
+                        <div style={{ overflowX: "auto" }}>
+                            <table className="hea-table" style={{ width: "100%" }}>
+                                <thead>
                                     <tr>
-                                        <th className="pb-2 pr-3">Date</th>
-                                        <th className="pb-2 pr-3">Charity</th>
-                                        <th className="pb-2 pr-3">Type</th>
-                                        <th className="pb-2 pr-3">Amount</th>
-                                        <th className="pb-2">Notes</th>
+                                        <th>Date</th>
+                                        <th>Charity</th>
+                                        <th>Type</th>
+                                        <th>Amount</th>
+                                        <th>Notes</th>
                                     </tr>
                                 </thead>
-                                <tbody className="divide-y divide-zinc-100 text-zinc-700">
-                                    {history.map((row) => (
-                                        <tr key={row.id}>
-                                            <td className="py-2 pr-3 whitespace-nowrap">{formatDate(row.created_at)}</td>
-                                            <td className="py-2 pr-3">{row.charities?.name ?? "Unknown charity"}</td>
-                                            <td className="py-2 pr-3">
-                                                <span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${typeBadgeClass(row.type)}`}>
-                                                    {row.type}
-                                                </span>
-                                            </td>
-                                            <td className="py-2 pr-3">₹{row.amount_inr}</td>
-                                            <td className="py-2">{row.notes || "—"}</td>
-                                        </tr>
-                                    ))}
+                                <tbody>
+                                    {history.map((row) => {
+                                        const statusColor = getStatusColor(row.type);
+                                        return (
+                                            <tr key={row.id}>
+                                                <td>{formatDate(row.created_at)}</td>
+                                                <td>{row.charities?.name ?? "Unknown Charity"}</td>
+                                                <td>
+                                                    <span
+                                                        style={{
+                                                            display: "inline-block",
+                                                            padding: "2px 8px",
+                                                            background: statusColor.bg,
+                                                            color: statusColor.color,
+                                                            border: `1px solid ${statusColor.border}`,
+                                                            borderRadius: 3,
+                                                            fontSize: "0.65rem",
+                                                            fontFamily:
+                                                                "'Barlow Condensed', sans-serif",
+                                                            fontWeight: 700,
+                                                            textTransform: "uppercase",
+                                                            letterSpacing: "0.08em",
+                                                        }}
+                                                    >
+                                                        {row.type.replace(/_/g, " ")}
+                                                    </span>
+                                                </td>
+                                                <td>
+                                                    <span
+                                                        style={{
+                                                            color: "var(--green)",
+                                                            fontWeight: 600,
+                                                        }}
+                                                    >
+                                                        ₹{row.amount_inr}
+                                                    </span>
+                                                </td>
+                                                <td>{row.notes || "—"}</td>
+                                            </tr>
+                                        );
+                                    })}
                                 </tbody>
                             </table>
                         </div>
                     )}
                 </section>
-            </div>
-        </main>
+            </main>
+        </div>
     );
 }

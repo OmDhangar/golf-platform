@@ -38,17 +38,17 @@ export const signupSchema = z.object({
     .min(2, "Name must be at least 2 characters")
     .max(100, "Name too long")
     .trim(),
-  // PRD §08: Charity must be selected at signup
-  charity_id: uuidSchema.optional(),
+  // PRD §08: Charity must be selected at signup (required for all users)
+  charity_id: uuidSchema,
   // PRD §08: Min 10% charity contribution
   charity_percent: z
     .number()
     .min(10, "Minimum charity contribution is 10%")
     .max(100, "Cannot exceed 100%")
     .default(10),
-  // PRD §04: Plan selection during signup
-  plan_type: z.enum(["monthly", "yearly"], {
-    errorMap: () => ({ message: "Plan must be monthly or yearly" }),
+  // PRD §04: Plan selection during signup (free option added)
+  plan_type: z.enum(["free", "monthly", "yearly"], {
+    errorMap: () => ({ message: "Plan must be free, monthly, or yearly" }),
   }),
 });
 

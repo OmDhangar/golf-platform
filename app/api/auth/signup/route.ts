@@ -76,7 +76,7 @@ export async function POST(req: NextRequest): Promise<NextResponse<ApiResponse>>
       role: "user",
       charity_id: charity_id ?? null,
       charity_percent: Math.max(charity_percent, 10),  // PRD §08: enforce min 10%
-    });
+    } as any);
 
     if (profileError) {
       // Rollback: delete auth user if profile insert fails
@@ -96,14 +96,19 @@ export async function POST(req: NextRequest): Promise<NextResponse<ApiResponse>>
     // --- 4. Return success — subscription creation is a separate step ---
     // PRD §04: Subscription flow is initiated by the client after signup
     // (Razorpay subscription requires a separate API call with payment confirmation)
+    // For free plan users, skip subscription creation and redirect to plans page
+    const nextStep = plan_type === "free" ? `/plans?plan=free&charity_id=${charity_id}` : `/plans?plan=${plan_type}&charity_id=${charity_id}`;
+    
     return NextResponse.json(
       {
         success: true,
         data: {
           userId,
           email,
-          message: "Account created. Please complete subscription payment.",
-          nextStep: `/api/subscriptions/create`,
+          message: plan_type === "free" 
+            ? "Account created! Choose to finalize free or upgrade to paid plan."
+            : "Account created. Please complete subscription payment.",
+          nextStep,
           plan_type,
         },
         message: "Signup successful",
