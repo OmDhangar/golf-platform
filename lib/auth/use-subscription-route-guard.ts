@@ -19,7 +19,7 @@ type GuardState = "checking" | "authorized";
 export function useSubscriptionRouteGuard(): { state: GuardState } {
     const router = useRouter();
     const pathname = usePathname();
-    const { tokens } = useClientAuthStore();
+    const { session } = useClientAuthStore();
     const [state, setState] = useState<GuardState>("checking");
 
     useEffect(() => {
@@ -30,7 +30,7 @@ export function useSubscriptionRouteGuard(): { state: GuardState } {
         let cancelled = false;
 
         async function resolveSubscription(): Promise<void> {
-            if (!tokens?.access_token) {
+            if (!session?.access_token) {
                 router.replace("/login");
                 return;
             }
@@ -79,7 +79,7 @@ export function useSubscriptionRouteGuard(): { state: GuardState } {
         return () => {
             cancelled = true;
         };
-    }, [pathname, router, tokens?.access_token]);
+    }, [pathname, router, session?.access_token]);
 
     return { state };
 }

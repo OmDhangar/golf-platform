@@ -41,7 +41,7 @@ export type DrawMode = "random" | "algorithmic";
 // TABLE ROW TYPES
 // ---------------------------------------------------------------------------
 
-export interface User {
+export type User = {
   id: string;                           // Supabase auth.uid()
   email: string;
   full_name: string;
@@ -50,9 +50,9 @@ export interface User {
   charity_percent: number;              // PRD §08: min 10%
   created_at: string;
   updated_at: string;
-}
+};
 
-export interface Subscription {
+export type Subscription = {
   id: string;
   user_id: string;
   razorpay_subscription_id: string;
@@ -66,29 +66,28 @@ export interface Subscription {
   cancelled_at: string | null;
   created_at: string;
   updated_at: string;
-}
+};
 
-export interface Score {
+export type Score = {
   id: string;
   user_id: string;
-  value: number;                        // PRD §05: Stableford 1–45
-  played_at: string;                    // PRD §05: date required
+  value: number;
+  played_at: string;
   course_name: string | null;
   created_at: string;
-}
+};
 
-export interface Draw {
+export type Draw = {
   id: string;
-  draw_month: string;                   // e.g. "2026-03"
+  draw_month: string;
   status: DrawStatus;
   draw_mode: DrawMode | null;
-  winning_numbers: number[] | null;     // PRD §06: the 5 drawn numbers
+  winning_numbers: number[] | null;
   prize_pool_total_paise: number | null;
-  jackpot_rollover_paise: number;       // PRD §07: carry-forward amount
+  jackpot_rollover_paise: number;
   active_subscriber_count: number | null;
   description: string | null;
   published_at: string | null;
-  // Prize images & labels (Cloudinary URLs)
   prize_1_image_url: string | null;
   prize_2_image_url: string | null;
   prize_3_image_url: string | null;
@@ -97,92 +96,307 @@ export interface Draw {
   prize_3_label: string | null;
   created_at: string;
   updated_at: string;
-}
+};
 
-export interface Winner {
+export type Winner = {
   id: string;
   draw_id: string;
   user_id: string;
-  tier: MatchTier;                      // PRD §06: five | four | three
-  prize_amount_paise: number;           // PRD §07: calculated share
-  status: WinnerStatus;                 // PRD §09: pending → paid
-  proof_url: string | null;            // PRD §09: uploaded screenshot
+  tier: MatchTier;
+  prize_amount_paise: number;
+  status: WinnerStatus;
+  proof_url: string | null;
   proof_submitted_at: string | null;
   admin_note: string | null;
-  verified_by: string | null;          // admin user_id
+  verified_by: string | null;
   payout_completed_at: string | null;
   created_at: string;
-}
+};
 
-export interface Charity {
+export type Charity = {
   id: string;
   name: string;
   description: string;
   website_url: string | null;
   logo_url: string | null;
-  is_featured: boolean;                // PRD §08: "Featured / spotlight charity"
-  events: CharityEvent[] | null;       // PRD §08: "upcoming events (e.g. golf days)"
-  category: string | null;             // ENVIRONMENT | YOUTH ATHLETICS | HEALTH & WELLNESS
-  total_generated_paise: number | null; // cumulative donations generated
+  is_featured: boolean;
+  events: CharityEvent[] | null;
+  category: string | null;
+  total_generated_paise: number | null;
   created_at: string;
   updated_at: string;
-}
+};
 
-export interface CharityEvent {
+export type CharityEvent = {
   title: string;
   date: string;
   description?: string;
-}
+};
 
-export interface Donation {
+export type Donation = {
   id: string;
   user_id: string;
   charity_id: string;
   amount_paise: number;
-  type: "subscription_share" | "independent";  // PRD §08: two donation types
+  type: "subscription_share" | "independent";
   subscription_id: string | null;
   notes: string | null;
   created_at: string;
-}
+};
 
-export interface Setting {
+export type Setting = {
   key: string;
   value: string;
   updated_at: string;
-}
+};
 
 // ---------------------------------------------------------------------------
 // DATABASE TYPE (for Supabase client generic)
 // ---------------------------------------------------------------------------
-export interface Database {
+export type Database = {
   public: {
     Tables: {
-      users: { Row: User; Insert: Omit<User, "created_at" | "updated_at">; Update: Partial<User> };
-      subscriptions: { Row: Subscription; Insert: Omit<Subscription, "id" | "created_at" | "updated_at">; Update: Partial<Subscription> };
-      scores: { Row: Score; Insert: Omit<Score, "id" | "created_at">; Update: Partial<Score> };
-      draws: { Row: Draw; Insert: Omit<Draw, "id" | "created_at" | "updated_at">; Update: Partial<Draw> };
-      winners: { Row: Winner; Insert: Omit<Winner, "id" | "created_at">; Update: Partial<Winner> };
-      charities: { Row: Charity; Insert: Omit<Charity, "id" | "created_at" | "updated_at">; Update: Partial<Charity> };
-      donations: { Row: Donation; Insert: Omit<Donation, "id" | "created_at">; Update: Partial<Donation> };
-      settings: { Row: Setting; Insert: Setting; Update: Partial<Setting> };
+      users: {
+        Row: User;
+        Insert: {
+          id?: string;
+          email: string;
+          full_name: string;
+          role?: UserRole;
+          charity_id?: string | null;
+          charity_percent?: number;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          email?: string;
+          full_name?: string;
+          role?: UserRole;
+          charity_id?: string | null;
+          charity_percent?: number;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      subscriptions: {
+        Row: Subscription;
+        Insert: {
+          id?: string;
+          user_id: string;
+          razorpay_subscription_id: string;
+          razorpay_plan_id: string;
+          plan_type: "monthly" | "yearly";
+          status: SubscriptionStatus;
+          current_period_start?: string | null;
+          current_period_end?: string | null;
+          prize_pool_contribution_paise: number;
+          charity_contribution_paise: number;
+          cancelled_at?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          razorpay_subscription_id?: string;
+          razorpay_plan_id?: string;
+          plan_type?: "monthly" | "yearly";
+          status?: SubscriptionStatus;
+          current_period_start?: string | null;
+          current_period_end?: string | null;
+          prize_pool_contribution_paise?: number;
+          charity_contribution_paise?: number;
+          cancelled_at?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      scores: {
+        Row: Score;
+        Insert: {
+          id?: string;
+          user_id: string;
+          value: number;
+          played_at: string;
+          course_name?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          value?: number;
+          played_at?: string;
+          course_name?: string | null;
+          created_at?: string;
+        };
+        Relationships: [];
+      };
+      draws: {
+        Row: Draw;
+        Insert: {
+          id?: string;
+          draw_month: string;
+          status: DrawStatus;
+          draw_mode?: DrawMode | null;
+          winning_numbers?: number[] | null;
+          prize_pool_total_paise?: number | null;
+          jackpot_rollover_paise?: number;
+          active_subscriber_count?: number | null;
+          description?: string | null;
+          published_at?: string | null;
+          prize_1_image_url?: string | null;
+          prize_2_image_url?: string | null;
+          prize_3_image_url?: string | null;
+          prize_1_label?: string | null;
+          prize_2_label?: string | null;
+          prize_3_label?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          draw_month?: string;
+          status?: DrawStatus;
+          draw_mode?: DrawMode | null;
+          winning_numbers?: number[] | null;
+          prize_pool_total_paise?: number | null;
+          jackpot_rollover_paise?: number;
+          active_subscriber_count?: number | null;
+          description?: string | null;
+          published_at?: string | null;
+          prize_1_image_url?: string | null;
+          prize_2_image_url?: string | null;
+          prize_3_image_url?: string | null;
+          prize_1_label?: string | null;
+          prize_2_label?: string | null;
+          prize_3_label?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      winners: {
+        Row: Winner;
+        Insert: {
+          id?: string;
+          draw_id: string;
+          user_id: string;
+          tier: MatchTier;
+          prize_amount_paise: number;
+          status: WinnerStatus;
+          proof_url?: string | null;
+          proof_submitted_at?: string | null;
+          admin_note?: string | null;
+          verified_by?: string | null;
+          payout_completed_at?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          draw_id?: string;
+          user_id?: string;
+          tier?: MatchTier;
+          prize_amount_paise?: number;
+          status?: WinnerStatus;
+          proof_url?: string | null;
+          proof_submitted_at?: string | null;
+          admin_note?: string | null;
+          verified_by?: string | null;
+          payout_completed_at?: string | null;
+          created_at?: string;
+        };
+        Relationships: [];
+      };
+      charities: {
+        Row: Charity;
+        Insert: {
+          id?: string;
+          name: string;
+          description: string;
+          website_url?: string | null;
+          logo_url?: string | null;
+          is_featured?: boolean;
+          events?: CharityEvent[] | null;
+          category?: string | null;
+          total_generated_paise?: number | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          name?: string;
+          description?: string;
+          website_url?: string | null;
+          logo_url?: string | null;
+          is_featured?: boolean;
+          events?: CharityEvent[] | null;
+          category?: string | null;
+          total_generated_paise?: number | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      donations: {
+        Row: Donation;
+        Insert: {
+          id?: string;
+          user_id: string;
+          charity_id: string;
+          amount_paise: number;
+          type: "subscription_share" | "independent";
+          subscription_id?: string | null;
+          notes?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          charity_id?: string;
+          amount_paise?: number;
+          type?: "subscription_share" | "independent";
+          subscription_id?: string | null;
+          notes?: string | null;
+          created_at?: string;
+        };
+        Relationships: [];
+      };
+      settings: {
+        Row: Setting;
+        Insert: Setting;
+        Update: Partial<Setting>;
+        Relationships: [];
+      };
+    };
+    Views: {
+      [_ in never]: never;
     };
     Functions: {
       current_user_role: { Args: Record<string, never>; Returns: string };
     };
+    Enums: {
+      [_ in never]: never;
+    };
+    CompositeTypes: {
+      [_ in never]: never;
+    };
   };
-}
+};
 
 // ---------------------------------------------------------------------------
 // API RESPONSE TYPES
 // ---------------------------------------------------------------------------
 
-export interface ApiSuccess<T = unknown> {
+export type ApiSuccess<T = unknown> = {
   success: true;
   data: T;
   message?: string;
 }
 
-export interface ApiError {
+export type ApiError = {
   success: false;
   error: string;
   code?: string;
@@ -194,14 +408,14 @@ export type ApiResponse<T = unknown> = ApiSuccess<T> | ApiError;
 // ---------------------------------------------------------------------------
 // DRAW ENGINE TYPES (re-exported from drawEngine for convenience)
 // ---------------------------------------------------------------------------
-export interface DrawResult {
+export type DrawResult = {
   drawId: string;
   winningNumbers: number[];
   mode: DrawMode;
   publishedAt: string;
 }
 
-export interface DrawWinner {
+export type DrawWinner = {
   userId: string;
   tier: MatchTier;
   prizeAmountPaise: number;
@@ -211,7 +425,7 @@ export interface DrawWinner {
 // ---------------------------------------------------------------------------
 // DASHBOARD SUMMARY TYPES (PRD §10 User Dashboard, §11 Admin Dashboard)
 // ---------------------------------------------------------------------------
-export interface UserDashboardData {
+export type UserDashboardData = {
   user: User;
   subscription: Subscription | null;
   scores: Score[];                  // Last 5, reverse chronological
@@ -227,7 +441,7 @@ export interface UserDashboardData {
   };
 }
 
-export interface AdminReportData {
+export type AdminReportData = {
   totalUsers: number;
   activeSubscribers: number;
   totalPrizePoolPaise: number;
@@ -243,3 +457,4 @@ export interface AdminReportData {
     total_paise: number;
   }[];
 }
+

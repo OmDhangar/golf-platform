@@ -15,7 +15,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createServerClient, createAdminClient } from "@/lib/server/supabase";
 import { createRouteLogger, logAndBuildError } from "@/lib/server/logger";
 import { loginSchema } from "@/lib/server/validators";
-import type { ApiResponse } from "@/types/index";
+import type { ApiResponse, Subscription, User } from "@/types/index";
 
 export const runtime = "nodejs";
 
@@ -78,7 +78,8 @@ export async function POST(req: NextRequest): Promise<NextResponse<ApiResponse>>
       log.error("Profile fetch failed post-login", { userId, error: profileResult.error.message });
     }
 
-    const subscription = subscriptionResult.data;
+    const subscription = subscriptionResult.data as Subscription | null;
+    const profile = profileResult.data as User | null;
 
     // --- 4. Return token + user context ---
     return NextResponse.json(
@@ -88,14 +89,14 @@ export async function POST(req: NextRequest): Promise<NextResponse<ApiResponse>>
           access_token,
           refresh_token,
           expires_at,
-          user: profileResult.data ?? { id: userId, email },
+          user: profile ?? { id: userId, email },
           subscription: subscription
             ? {
-                id: subscription.id,
-                status: subscription.status,
-                plan_type: subscription.plan_type,
-                renewal_date: subscription.current_period_end,  // PRD §10
-              }
+              id: subscription.id,
+              status: subscription.status,
+              plan_type: subscription.plan_type,
+              renewal_date: subscription.current_period_end,  // PRD §10
+            }
             : null,
           // PRD §04: Inform client if subscription is inactive
           has_active_subscription: subscription?.status === "active",
