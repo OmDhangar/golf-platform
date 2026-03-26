@@ -594,6 +594,61 @@ input[type=range]::-webkit-slider-thumb {
     .mechanics-line {
       display: none;
     }
+
+    .mechanics-item {
+      margin-bottom: 40px !important;
+    }
+
+    .mechanics-item-inner {
+      display: grid !important;
+      grid-template-columns: 48px 1fr !important;
+      column-gap: 12px !important;
+      width: 100% !important;
+    }
+
+    .mechanics-dot {
+      margin: 0 !important;
+      width: 36px !important;
+      height: 36px !important;
+      font-size: 0.85rem !important;
+    }
+
+    .mechanics-side {
+      padding: 0 0 0 12px !important;
+      text-align: left !important;
+    }
+
+    .mechanics-card {
+      height: 160px !important;
+      max-width: 100% !important;
+    }
+
+    .mechanics-card h3 {
+      font-size: 1.1rem !important;
+      margin-bottom: 4px !important;
+    }
+
+    .mechanics-card p {
+      font-size: 0.75rem !important;
+      line-height: 1.4 !important;
+      max-width: 100% !important;
+    }
+
+    .mechanics-card .label-caps {
+      font-size: 0.7rem !important;
+      margin-bottom: 2px !important;
+    }
+
+    .mechanics-dot-container {
+      margin: 0 8px !important;
+      width: 32px !important;
+      height: 32px !important;
+      border-width: 2px !important;
+    }
+
+    .mechanics-dot-container span {
+      font-size: 0.75rem !important;
+    }
   }
 
     .admin-mobile-topbar {
@@ -671,61 +726,6 @@ input[type=range]::-webkit-slider-thumb {
       grid-template-columns: 1fr !important;
       gap: 12px !important;
     }
-  }
-
-  .mechanics-item {
-    margin-bottom: 40px !important;
-  }
-
-  .mechanics-item-inner {
-    display: grid !important;
-    grid-template-columns: 48px 1fr !important;
-    column-gap: 12px !important;
-    width: 100% !important;
-  }
-
-  .mechanics-dot {
-    margin: 0 !important;
-    width: 36px !important;
-    height: 36px !important;
-    font-size: 0.85rem !important;
-  }
-
-  .mechanics-side {
-    padding: 0 0 0 12px !important;
-    text-align: left !important;
-  }
-
-  .mechanics-card {
-    height: 160px !important;
-    max-width: 100% !important;
-  }
-
-  .mechanics-card h3 {
-    font-size: 1.1rem !important;
-    margin-bottom: 4px !important;
-  }
-
-  .mechanics-card p {
-    font-size: 0.75rem !important;
-    line-height: 1.4 !important;
-    max-width: 100% !important;
-  }
-
-  .mechanics-card .label-caps {
-    font-size: 0.7rem !important;
-    margin-bottom: 2px !important;
-  }
-
-  .mechanics-dot-container {
-    margin: 0 8px !important;
-    width: 32px !important;
-    height: 32px !important;
-    border-width: 2px !important;
-  }
-
-  .mechanics-dot-container span {
-    font-size: 0.75rem !important;
   }
 
 

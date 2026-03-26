@@ -178,6 +178,46 @@ export default function NavBar({ variant = "dashboard", showAuthButtons = false 
         {/* RIGHT SECTION */}
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
 
+          {/* AUTH BUTTONS (DESKTOP) */}
+          {!isLoggedIn && showAuthButtons && (
+            <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
+              <button
+                onClick={() => router.push("/login")}
+                style={{
+                  padding: "8px 16px",
+                  borderRadius: 6,
+                  border: "1px solid var(--border)",
+                  background: "transparent",
+                  fontWeight: 600,
+                  letterSpacing: "0.05em",
+                  fontSize: "0.85rem",
+                  cursor: "pointer",
+                  color: "var(--text-primary)",
+                }}
+              >
+                LOGIN
+              </button>
+              <button
+                onClick={() => router.push("/signup")}
+                style={{
+                  padding: "2px 16px",
+                  borderRadius: 6,
+                  height: 36,
+                  textAlign: "center",
+                  border: "none",
+                  background: "var(--green)",
+                  color: "#000",
+                  fontWeight: 900,
+                  letterSpacing: "0.05em",
+                  fontSize: "0.60rem",
+                  cursor: "pointer",
+                }}
+              >
+                GET STARTED
+              </button>
+            </div>
+          )}
+
           {/* USER ICON */}
           {isLoggedIn && (
             <div ref={dropdownRef} style={{ position: "relative" }}>

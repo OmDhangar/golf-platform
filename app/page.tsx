@@ -228,7 +228,16 @@ export default function HomePage() {
             {/* Timeline Line */}
             <div
               className="mechanics-line"
-
+              style={{
+                position: "absolute",
+                left: "50%",
+                top: 0,
+                bottom: 0,
+                width: "3px",
+                background: "linear-gradient(to bottom, var(--green), transparent)",
+                transform: "translateX(-50%)",
+                zIndex: 1,
+              }}
             />
 
             {/* Timeline Items */}
