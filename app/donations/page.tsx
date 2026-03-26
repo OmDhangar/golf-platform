@@ -1,7 +1,6 @@
 "use client";
 
 import { FormEvent, useEffect, useMemo, useState } from "react";
-import NavBar from "@/components/nav-bar";
 import { charities } from "@/lib/api/endpoints/charities";
 import {
     donations,
@@ -191,7 +190,7 @@ export default function DonationsPage() {
 
     return (
         <div style={{ minHeight: "100vh", background: "var(--bg-deep)" }}>
-            <NavBar />
+            
 
             <main style={{ maxWidth: 1200, margin: "0 auto", padding: "32px 24px" }}>
                 {/* Header */}

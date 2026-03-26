@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState, useEffect, useRef } from "react";
 import { useClientAuthStore, clearAuthTokens, hydrateAuthStore } from "@/lib/auth/store";
+import { useGetDashboardRoute } from "@/lib/auth/use-get-dashboard-route";
 
 interface NavBarProps {
   variant?: "dashboard" | "homepage";
@@ -24,10 +25,19 @@ const homepageLinks = [
   { href: "#pricing", label: "Pricing" },
 ];
 
+const adminLinks = [
+  { href: "/admin", label: "DASHBOARD" },
+  { href: "/admin/users", label: "VERIFICATIONS" },
+  { href: "/admin/draws", label: "DRAW ENGINE" },
+  { href: "/admin/reports", label: "SETTINGS" },
+];
+
 export default function NavBar({ variant = "dashboard", showAuthButtons = false }: NavBarProps) {
 
   const pathname = usePathname();
   const router = useRouter();
+  const dashboardRoute = useGetDashboardRoute();
+  const isAdminRoute = pathname.startsWith("/admin");
 
   const [showDropdown, setShowDropdown] = useState(false);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
@@ -42,7 +52,7 @@ export default function NavBar({ variant = "dashboard", showAuthButtons = false 
     hydrateAuthStore();
   }, []);
 
-  const links = variant === "homepage" ? homepageLinks : dashboardLinks;
+  const links = isAdminRoute ? adminLinks : (variant === "homepage" ? homepageLinks : dashboardLinks);
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -218,7 +228,7 @@ export default function NavBar({ variant = "dashboard", showAuthButtons = false 
                   </div>
 
                   <Link
-                    href="/dashboard"
+                    href={dashboardRoute}
                     onClick={() => setShowDropdown(false)}
                     style={{ display: "block", padding: 12, textDecoration: "none" }}
                   >
@@ -252,6 +262,7 @@ export default function NavBar({ variant = "dashboard", showAuthButtons = false 
 
           {/* HAMBURGER */}
           <button
+            className="nav-hamburger"
             onClick={() => setShowMobileMenu(!showMobileMenu)}
             style={{
               background: "none",

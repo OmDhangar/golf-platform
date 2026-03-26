@@ -109,7 +109,6 @@ body {
   color: var(--green);
 }
 
-/* Table base */
 .hea-table {
   width: 100%;
   border-collapse: collapse;
@@ -136,6 +135,30 @@ body {
 
 .hea-table tr:last-child td {
   border-bottom: none;
+}
+
+/* Table wrapper for horizontal scrolling */
+.table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+  margin-top: 12px;
+}
+
+.table-wrapper::-webkit-scrollbar {
+  height: 6px;
+}
+
+.table-wrapper::-webkit-scrollbar-track {
+  background: var(--bg-surface);
+}
+
+.table-wrapper::-webkit-scrollbar-thumb {
+  background: var(--border-light);
+  border-radius: 3px;
+}
+
+.hea-table {
+  min-width: 520px;
 }
 
 /* Inputs */
@@ -384,6 +407,22 @@ input[type=range]::-webkit-slider-thumb {
   animation-delay: 500ms;
 }
 
+/* hide hamburger on desktop */
+.nav-hamburger {
+  display: none;
+}
+
+/* show only on small screens */
+@media (max-width: 768px) {
+  .nav-hamburger {
+    display: block;
+  }
+
+  .nav-desktop {
+    display: none !important;
+  }
+}
+
 @media (max-width: 768px) {
   .nav-desktop {
     display: none !important;
@@ -512,67 +551,6 @@ input[type=range]::-webkit-slider-thumb {
     text-transform: uppercase;
   }
 
-  .admin-shell {
-    display: block !important;
-  }
-
-  .admin-sidebar {
-    position: fixed !important;
-    top: 0;
-    left: 0;
-    height: 100vh !important;
-    z-index: 2500;
-    transform: translateX(-105%);
-    transition: transform 0.2s ease;
-    width: min(260px, 86vw) !important;
-  }
-
-  .admin-sidebar.admin-sidebar-open {
-    transform: translateX(0);
-  }
-
-  .admin-sidebar-overlay {
-    position: fixed;
-    inset: 0;
-    z-index: 2400;
-    background: rgba(0, 0, 0, 0.6);
-    backdrop-filter: blur(10px);
-  }
-
-  .admin-mobile-only {
-    display: flex !important;
-  }
-
-  .admin-mobile-topbar {
-    position: sticky;
-    top: 0;
-    z-index: 2300;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 10px 12px;
-    border-bottom: 1px solid var(--border);
-    background: var(--bg-card);
-  }
-
-  .admin-mobile-topbar-title {
-    font-family: 'Barlow Condensed', sans-serif;
-    font-weight: 800;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    font-size: 0.85rem;
-    color: var(--text-primary);
-  }
-
-  .admin-mobile-topbar-btn {
-    background: none;
-    border: 1px solid var(--border-light);
-    color: var(--text-primary);
-    border-radius: 10px;
-    padding: 10px 12px;
-    cursor: pointer;
-  }
-
   .home-cards-grid {
     grid-template-columns: 1fr !important;
     gap: 16px !important;
@@ -615,6 +593,83 @@ input[type=range]::-webkit-slider-thumb {
   @media (max-width: 768px) {
     .mechanics-line {
       display: none;
+    }
+  }
+
+    .admin-mobile-topbar {
+      position: sticky;
+      top: 0;
+      z-index: 2300;
+      display: none;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border);
+      background: var(--bg-card);
+      gap: 12px;
+    }
+
+    .admin-mobile-topbar-title {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 800;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      font-size: 0.85rem;
+      color: var(--text-primary);
+    }
+
+    .admin-mobile-topbar-btn {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-light);
+      color: var(--text-primary);
+      border-radius: 10px;
+      padding: 10px 12px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 40px;
+      min-height: 40px;
+      transition: background 0.2s;
+    }
+
+    .admin-mobile-topbar-btn:active {
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    /* Full width content on mobile */
+    .admin-shell > div:last-child {
+      flex: 1;
+      width: 100%;
+    }
+
+    /* Command Center mobile responsive */
+    .admin-shell > div > div:first-child {
+      flex-direction: row;
+      align-items: center;
+      gap: 12px !important;
+      padding: 12px 16px !important;
+    }
+
+    .admin-shell > div > div:first-child h1 {
+      font-size: 1.25rem !important;
+      flex: 1;
+      margin: 0;
+    }
+
+    .admin-shell > div > div:first-child > div {
+      display: none;
+    }
+
+    /* Hamburger button visible on mobile */
+    .admin-command-hamburger {
+      display: flex !important;
+    }
+
+    /* Stat cards grid responsive */
+    [style*="gridTemplateColumns: \"repeat(auto-fit, minmax(200px, 1fr))\""] {
+      grid-template-columns: 1fr !important;
+      gap: 12px !important;
     }
   }
 
@@ -671,6 +726,40 @@ input[type=range]::-webkit-slider-thumb {
 
   .mechanics-dot-container span {
     font-size: 0.75rem !important;
+  }
+
+
+/* Mobile table and card optimizations */
+@media (max-width: 640px) {
+  /* Hide HCP column on mobile */
+  .hea-table th:nth-child(4),
+  .hea-table td:nth-child(4) {
+    display: none;
+  }
+
+  /* Truncate course name */
+  .hea-table th:nth-child(2),
+  .hea-table td:nth-child(2) {
+    max-width: 140px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* Reduce card padding */
+  .hea-card {
+    padding: 16px !important;
+  }
+
+  /* Compact table on mobile */
+  .hea-table td {
+    padding: 10px 8px;
+    font-size: 0.8rem;
+  }
+
+  .hea-table th {
+    padding: 8px 8px;
+    font-size: 0.65rem;
   }
 }
 

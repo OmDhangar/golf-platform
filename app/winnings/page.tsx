@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import NavBar from "@/components/nav-bar";
+import { Button } from "@/components/Button";
 import { winnings, type WinnerStatus, type WinningsEntry } from "@/lib/api/endpoints/winnings";
 import { FormEvent } from "react";
 
@@ -73,7 +73,7 @@ export default function WinningsPage() {
 
   return (
     <div style={{ minHeight: "100vh", background: "var(--bg-deep)" }}>
-      <NavBar />
+      
 
       <main style={{ maxWidth: 1000, margin: "0 auto", padding: "0 24px 40px" }}>
 

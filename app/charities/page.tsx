@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { headers } from "next/headers";
 import type { Charity, CharityEvent } from "@/types";
-import NavBar from "@/components/nav-bar";
 
 const ALL_CATEGORIES = ["ALL INITIATIVES", "ENVIRONMENT", "YOUTH ATHLETICS", "HEALTH & WELLNESS"];
 
@@ -53,7 +52,7 @@ export default async function CharitiesPage({
 
   return (
     <div style={{ minHeight: "100vh", background: "var(--bg-deep)" }}>
-      <NavBar />
+      
 
       <main style={{ maxWidth: 1200, margin: "0 auto", padding: "32px 24px" }}>
 

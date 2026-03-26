@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { PropsWithChildren } from "react";
-import AdminSidebar from "@/components/admin-sidebar";
+import NavBar from "@/components/nav-bar";
 import { getAccessToken, getUserRole } from "@/lib/auth/store";
 import { admin } from "@/lib/api/endpoints/admin";
 import { ApiClientError } from "@/lib/api/client";
@@ -12,8 +12,6 @@ export default function AdminLayout({ children }: PropsWithChildren) {
   const router = useRouter();
   const [checking, setChecking] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   useEffect(() => {
     async function guardAdminRoute(): Promise<void> {
@@ -58,29 +56,9 @@ export default function AdminLayout({ children }: PropsWithChildren) {
   }
 
   return (
-    <div className="admin-shell" style={{ display: "flex", minHeight: "100vh", background: "var(--bg-deep)" }}>
-      {sidebarOpen && <div className="admin-sidebar-overlay" onClick={() => setSidebarOpen(false)} />}
-
-      <AdminSidebar
-        open={sidebarOpen}
-        collapsed={sidebarCollapsed}
-        onToggleCollapsed={() => setSidebarCollapsed((prev) => !prev)}
-        onClose={() => setSidebarOpen(false)}
-      />
-
-      <div style={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden" }}>
-        <div className="admin-mobile-topbar" style={{ padding: "12px 16px" }}>
-          <button className="admin-mobile-topbar-btn" onClick={() => setSidebarOpen(true)} aria-label="Open sidebar">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <line x1="3" y1="6" x2="21" y2="6" />
-              <line x1="3" y1="12" x2="21" y2="12" />
-              <line x1="3" y1="18" x2="21" y2="18" />
-            </svg>
-          </button>
-          <div className="admin-mobile-topbar-title">Admin</div>
-          <div style={{ width: 44 }} />
-        </div>
-
+    <div style={{ display: "flex", flexDirection: "column", minHeight: "100vh", background: "var(--bg-deep)" }}>
+      <NavBar variant="dashboard" />
+      <div style={{ flex: 1, display: "flex", flexDirection: "column", overflow: "auto" }}>
         {children}
       </div>
     </div>

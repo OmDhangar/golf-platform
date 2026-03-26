@@ -40,7 +40,7 @@ export default async function ResultsPage() {
 
     return (
         <div style={{ minHeight: "100vh", background: "var(--bg-deep)" }}>
-            <NavBar />
+            <NavBar variant="dashboard" />
 
             <main style={{ maxWidth: 1000, margin: "0 auto", padding: "32px 24px" }}>
                 {/* Header */}

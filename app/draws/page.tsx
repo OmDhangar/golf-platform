@@ -43,7 +43,7 @@ export default function DrawsPage() {
 
   return (
     <div style={{ minHeight: "100vh", background: "var(--bg-deep)" }}>
-      <NavBar />
+      <NavBar variant="dashboard" />
 
       <main style={{ maxWidth: 900, margin: "0 auto", padding: "32px 24px" }}>
 

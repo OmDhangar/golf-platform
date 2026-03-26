@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import NavBar from "@/components/nav-bar";
+import { useClientAuthStore, clearAuthTokens, hydrateAuthStore } from "@/lib/auth/store";
 import { dashboard, type DashboardResponse } from "@/lib/api/endpoints/dashboard";
 import { charities as charitiesApi } from "@/lib/api/endpoints/charities";
 import { apiFetch } from "@/lib/api/client";
@@ -252,7 +253,7 @@ export default function DashboardPage() {
 
     return (
         <div style={{ minHeight: "100vh", background: "var(--bg-deep)" }}>
-            <NavBar />
+            <NavBar variant="dashboard" />
             
             {showSuccess && (
                 <div style={{

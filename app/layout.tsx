@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "High-Energy Athletic | Golf Charity Platform",
+  title: "Golf Charity Platform",
   description: "Golf charity platform — score tracking, monthly draws, and charitable giving.",
 };
 

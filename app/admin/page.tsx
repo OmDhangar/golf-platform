@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { admin } from "@/lib/api/endpoints/admin";
 
 const MOCK_FLAGGED = [
@@ -10,7 +11,6 @@ const MOCK_FLAGGED = [
 ];
 
 export default function AdminDashboardPage() {
-  const [search, setSearch] = useState("");
   const [totalUsers, setTotalUsers] = useState<number>(0);
   const [currentDraw, setCurrentDraw] = useState<any>(null);
   const [simRunning, setSimRunning] = useState(false);
@@ -86,48 +86,7 @@ export default function AdminDashboardPage() {
         <h1 className="font-barlow" style={{ fontSize: "1.5rem", fontWeight: 800, letterSpacing: "0.08em", textTransform: "uppercase", color: "var(--text-primary)" }}>
           Command Center
         </h1>
-        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-          {/* Search */}
-          <div style={{ position: "relative" }}>
-            <svg style={{ position: "absolute", left: 10, top: "50%", transform: "translateY(-50%)" }} width="14" height="14" viewBox="0 0 24 24" fill="none">
-              <circle cx="11" cy="11" r="8" stroke="var(--text-muted)" strokeWidth="2" />
-              <path d="M21 21l-4.35-4.35" stroke="var(--text-muted)" strokeWidth="2" strokeLinecap="round" />
-            </svg>
-            <input
-              type="text"
-              placeholder="SEARCH SYSTEM..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              style={{
-                background: "var(--bg-card)", border: "1px solid var(--border)",
-                color: "var(--text-primary)", borderRadius: 4, padding: "8px 12px 8px 32px",
-                fontSize: "0.75rem", fontFamily: "'Barlow Condensed', sans-serif",
-                letterSpacing: "0.08em", width: 200, outline: "none",
-              }}
-            />
-          </div>
-          {/* User badge */}
-          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-            <div style={{ textAlign: "right" }}>
-              <p className="font-barlow" style={{ fontSize: "0.75rem", fontWeight: 700, letterSpacing: "0.1em", color: "var(--text-primary)" }}>
-                SYSADMIN_01
-              </p>
-              <p className="font-barlow" style={{ fontSize: "0.65rem", fontWeight: 600, letterSpacing: "0.1em", color: "var(--green)" }}>
-                LEVEL 5 ACCESS
-              </p>
-            </div>
-            <div style={{
-              width: 36, height: 36, borderRadius: "50%",
-              background: "var(--bg-card)", border: "1px solid var(--border-light)",
-              display: "flex", alignItems: "center", justifyContent: "center",
-            }}>
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                <circle cx="12" cy="8" r="4" fill="var(--text-muted)" />
-                <path d="M4 20 C4 16 8 13 12 13 C16 13 20 16 20 20" stroke="var(--text-muted)" strokeWidth="2" strokeLinecap="round" />
-              </svg>
-            </div>
-          </div>
-        </div>
+        
       </div>
 
       {/* Main content */}
@@ -159,7 +118,7 @@ export default function AdminDashboardPage() {
         </div>
 
         {/* Bottom section */}
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 400px), 1fr))", gap: 20, flex: 1 }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))", gap: 20, flex: 1 }}>
 
           {/* Score Verification Queue */}
           <div className="hea-card animate-fade-up delay-500" style={{ padding: "22px 24px", display: "flex", flexDirection: "column" }}>
@@ -177,46 +136,48 @@ export default function AdminDashboardPage() {
               </button>
             </div>
 
-            <table className="hea-table" style={{ marginTop: 12 }}>
-              <thead>
-                <tr>
-                  <th>PLAYER</th>
-                  <th>DATE / COURSE</th>
-                  <th>POINTS</th>
-                  <th>HCP</th>
-                  <th>ACTION</th>
-                </tr>
-              </thead>
-              <tbody>
-                {MOCK_FLAGGED.map((row) => (
-                  <tr key={row.id}>
-                    <td>
-                      <p style={{ color: "var(--text-primary)", fontWeight: 600, fontSize: "0.82rem" }}>{row.name}</p>
-                      <p style={{ color: "var(--text-muted)", fontSize: "0.72rem" }}>ID: {row.id}</p>
-                    </td>
-                    <td>
-                      <p style={{ color: "var(--text-secondary)", fontSize: "0.82rem" }}>{row.date}</p>
-                      <p style={{ color: "var(--text-muted)", fontSize: "0.72rem" }}>{row.course}</p>
-                    </td>
-                    <td>
-                      <span style={{
-                        display: "inline-flex", alignItems: "center", justifyContent: "center",
-                        width: 38, height: 38, background: "var(--red-bg)",
-                        border: "1px solid #7f1d1d", borderRadius: 4,
-                        color: "var(--red)", fontFamily: "'Barlow Condensed', sans-serif",
-                        fontWeight: 800, fontSize: "1rem",
-                      }}>
-                        {row.points}
-                      </span>
-                    </td>
-                    <td style={{ color: "var(--text-secondary)" }}>{row.hcp}</td>
-                    <td>
-                      <button className="btn-ghost" style={{ padding: "5px 12px", fontSize: "0.68rem" }}>REVIEW</button>
-                    </td>
+            <div className="table-wrapper">
+              <table className="hea-table">
+                <thead>
+                  <tr>
+                    <th>PLAYER</th>
+                    <th>DATE / COURSE</th>
+                    <th>POINTS</th>
+                    <th>HCP</th>
+                    <th>ACTION</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {MOCK_FLAGGED.map((row) => (
+                    <tr key={row.id}>
+                      <td>
+                        <p style={{ color: "var(--text-primary)", fontWeight: 600, fontSize: "0.82rem" }}>{row.name}</p>
+                        <p style={{ color: "var(--text-muted)", fontSize: "0.72rem" }}>ID: {row.id}</p>
+                      </td>
+                      <td>
+                        <p style={{ color: "var(--text-secondary)", fontSize: "0.82rem" }}>{row.date}</p>
+                        <p style={{ color: "var(--text-muted)", fontSize: "0.72rem" }}>{row.course.split(" ").slice(0, 2).join(" ")}</p>
+                      </td>
+                      <td>
+                        <span style={{
+                          display: "inline-flex", alignItems: "center", justifyContent: "center",
+                          width: 38, height: 38, background: "var(--red-bg)",
+                          border: "1px solid #7f1d1d", borderRadius: 4,
+                          color: "var(--red)", fontFamily: "'Barlow Condensed', sans-serif",
+                          fontWeight: 800, fontSize: "1rem",
+                        }}>
+                          {row.points}
+                        </span>
+                      </td>
+                      <td style={{ color: "var(--text-secondary)" }}>{row.hcp}</td>
+                      <td>
+                        <button className="btn-ghost" style={{ padding: "5px 12px", fontSize: "0.68rem" }}>REVIEW</button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
 
             <div style={{ marginTop: "auto", paddingTop: 16, borderTop: "1px solid var(--border)", textAlign: "center" }}>
               <button style={{ background: "none", border: "none", color: "var(--text-muted)", fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 600, fontSize: "0.75rem", letterSpacing: "0.1em", textTransform: "uppercase", cursor: "pointer" }}>

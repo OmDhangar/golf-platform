@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import NavBar from "@/components/nav-bar";
 import { apiFetch, ApiClientError } from "@/lib/api/client";
 
 export default function AdminCharitiesPage() {
