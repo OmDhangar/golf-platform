@@ -144,7 +144,7 @@ export default function HomePage() {
               zIndex: 1,
             }}
           />
-          
+
           <div style={{ position: "relative", zIndex: 2 }}>
             <h1
               className="font-barlow"
@@ -159,11 +159,11 @@ export default function HomePage() {
                 textShadow: "0 4px 20px rgba(0,0,0,0.3)",
               }}
             >
-              PLAY.
+              COMPETE
               <br />
-              <span style={{ color: "var(--green)" }}>GIVE.</span>
+              <span style={{ color: "var(--green)" }}>FOR</span>
               <br />
-              WIN.
+              GOOD
             </h1>
 
             <p
@@ -177,7 +177,7 @@ export default function HomePage() {
                 textShadow: "0 2px 10px rgba(0,0,0,0.5)",
               }}
             >
-              Finding unique ways to improve your game while giving back. Join a community of like-minded individuals and high achievers monthly, earn prizes, and stop playing for nothing.
+              Stop playing for nothing. We fuse competitive golf tracking with automated philanthropic giving and massive monthly payouts. Enter the arena.
             </p>
 
             <div style={{ display: "flex", gap: 16, justifyContent: "center" }}>
@@ -193,8 +193,8 @@ export default function HomePage() {
       </section>
 
       {/* The Mechanics Timeline Section */}
-      <section id="mechanics" style={{ padding: "40px 24px", background: "var(--bg-deep)", position: "relative" }}>
-        <div style={{ maxWidth: 1400, margin: "0 auto" }}>
+      <section id="mechanics" className="animate-fade-in" style={{ padding: "60px 20px", background: "var(--bg-deep)", position: "relative" }}>
+        <div className="mechanics-timeline" style={{ maxWidth: 1200, margin: "0 auto" }}>
           <h2
             className="label-caps"
             style={{
@@ -207,15 +207,15 @@ export default function HomePage() {
           >
             THE MECHANICS
           </h2>
-          
+
           <p
             style={{
               textAlign: "center",
               color: "var(--text-primary)",
-              fontSize: "clamp(1rem, 2vw, 1.3rem)",
-              marginBottom: 40,
+              fontSize: "clamp(0.9rem, 2vw, 1.3rem)",
+              marginBottom: 32,
               maxWidth: "min(700px, 85vw)",
-              margin: "0 auto 40px",
+              margin: "0 auto 32px",
               lineHeight: 1.6,
               fontWeight: 300,
             }}
@@ -227,26 +227,19 @@ export default function HomePage() {
           <div style={{ position: "relative", padding: "10px 0" }}>
             {/* Timeline Line */}
             <div
-              style={{
-                position: "absolute",
-                left: "50%",
-                top: 0,
-                bottom: 0,
-                width: "3px",
-                background: "linear-gradient(to bottom, var(--green), transparent)",
-                transform: "translateX(-50%)",
-                zIndex: 1,
-              }}
+              className="mechanics-line"
+
             />
 
             {/* Timeline Items */}
             {mechanics.map((item, index) => (
               <div
                 key={item.step}
+                className={`mechanics-item animate-fade-up delay-${(index + 1) * 100}`}
                 style={{
                   display: "flex",
                   alignItems: "center",
-                  marginBottom: index < mechanics.length - 1 ? "40px" : "0",
+                  marginBottom: index < mechanics.length - 1 ? "60px" : "0",
                   position: "relative",
                   zIndex: 2,
                 }}
@@ -254,14 +247,15 @@ export default function HomePage() {
                 {/* Left Side - Image for odd items, Content for even */}
                 {index % 2 === 0 ? (
                   <>
-                    <div style={{ flex: 1, paddingRight: "60px", textAlign: "right" }}>
+                    <div className="mechanics-side" style={{ flex: 1, paddingRight: "40px", textAlign: "right" }}>
                       <div
+                        className="mechanics-card"
                         style={{
                           background: `url(${item.image})`,
                           backgroundSize: "cover",
                           backgroundPosition: "center",
                           height: "280px",
-                          borderRadius: "12px",
+                          borderRadius: "16px",
                           position: "relative",
                           overflow: "hidden",
                           boxShadow: "0 10px 40px rgba(0,0,0,0.3)",
@@ -274,7 +268,7 @@ export default function HomePage() {
                             background: "linear-gradient(135deg, rgba(8,15,26,0.2), rgba(8,15,26,0.7))",
                             display: "flex",
                             alignItems: "flex-end",
-                            padding: "30px",
+                            padding: "20px",
                           }}
                         >
                           <div>
@@ -316,6 +310,7 @@ export default function HomePage() {
 
                     {/* Timeline Dot */}
                     <div
+                      className="mechanics-dot-container"
                       style={{
                         width: "60px",
                         height: "60px",
@@ -328,6 +323,7 @@ export default function HomePage() {
                         margin: "0 30px",
                         boxShadow: "0 0 0 4px rgba(34, 197, 94, 0.2)",
                         zIndex: 3,
+                        flexShrink: 0
                       }}
                     >
                       <span
@@ -342,17 +338,17 @@ export default function HomePage() {
                       </span>
                     </div>
 
-                    {/* Right Side - Empty for odd items */}
-                    <div style={{ flex: 1, paddingLeft: "60px" }} />
+                    {/* Right Side - Hidden on mobile */}
+                    <div className="nav-desktop" style={{ flex: 1, paddingLeft: "40px" }} />
                   </>
                 ) : (
                   /* Even items - content on left, image on right */
                   <>
-                    {/* Left Side - Empty for even items */}
-                    <div style={{ flex: 1, paddingRight: "60px" }} />
+                    <div className="nav-desktop" style={{ flex: 1, paddingRight: "60px" }} />
 
                     {/* Timeline Dot */}
                     <div
+                      className="mechanics-dot-container"
                       style={{
                         width: "60px",
                         height: "60px",
@@ -365,6 +361,7 @@ export default function HomePage() {
                         margin: "0 20px",
                         boxShadow: "0 0 0 4px rgba(34, 197, 94, 0.2)",
                         zIndex: 3,
+                        flexShrink: 0
                       }}
                     >
                       <span
@@ -380,14 +377,15 @@ export default function HomePage() {
                     </div>
 
                     {/* Right Side - Image for even items */}
-                    <div style={{ flex: 1, paddingLeft: "60px", textAlign: "left" }}>
+                    <div className="mechanics-side" style={{ flex: 1, paddingLeft: "40px" }}>
                       <div
+                        className="mechanics-card"
                         style={{
                           background: `url(${item.image})`,
                           backgroundSize: "cover",
                           backgroundPosition: "center",
                           height: "280px",
-                          borderRadius: "12px",
+                          borderRadius: "16px",
                           position: "relative",
                           overflow: "hidden",
                           boxShadow: "0 10px 40px rgba(0,0,0,0.3)",
@@ -400,7 +398,7 @@ export default function HomePage() {
                             background: "linear-gradient(135deg, rgba(8,15,26,0.2), rgba(8,15,26,0.7))",
                             display: "flex",
                             alignItems: "flex-end",
-                            padding: "30px",
+                            padding: "20px",
                           }}
                         >
                           <div>
@@ -460,7 +458,7 @@ export default function HomePage() {
           >
             CHOOSE YOUR STAKES
           </h2>
-          
+
           <p
             style={{
               textAlign: "center",
@@ -475,10 +473,11 @@ export default function HomePage() {
           </p>
 
           <div
+            className="pricing-grid animate-fade-up"
             style={{
               display: "grid",
-              gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
-              gap: 32,
+              gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
+              gap: 24,
               maxWidth: 800,
               margin: "0 auto",
             }}

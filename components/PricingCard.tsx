@@ -21,27 +21,26 @@ export const PricingCard: React.FC<PricingCardProps> = ({
 }) => {
   return (
     <div
-      className="hea-card"
+      className="hea-card pricing-card animate-scale-in"
       style={{
-        padding: '32px',
+        padding: '18px',
         display: 'flex',
         flexDirection: 'column',
-        gap: '20px',
+        gap: '12px',
         border: highlighted ? '2px solid var(--green)' : '1px solid var(--border)',
         position: 'relative',
-        transition: 'transform 0.15s, border-color 0.15s',
+        transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+        overflow: 'hidden',
       }}
       onMouseEnter={(e) => {
-        if (!highlighted) {
           e.currentTarget.style.borderColor = 'var(--green)';
-          e.currentTarget.style.transform = 'translateY(-2px)';
-        }
+          e.currentTarget.style.transform = 'translateY(-6px) scale(1.02)';
+          e.currentTarget.style.boxShadow = '0 15px 35px -5px rgba(34, 197, 94, 0.15)';
       }}
       onMouseLeave={(e) => {
-        if (!highlighted) {
-          e.currentTarget.style.borderColor = 'var(--border)';
-          e.currentTarget.style.transform = 'translateY(0)';
-        }
+          e.currentTarget.style.borderColor = highlighted ? 'var(--green)' : 'var(--border)';
+          e.currentTarget.style.transform = 'translateY(0) scale(1)';
+          e.currentTarget.style.boxShadow = 'none';
       }}
     >
       {highlighted && (
@@ -81,11 +80,12 @@ export const PricingCard: React.FC<PricingCardProps> = ({
           }}
         >
           <span
-            className="font-barlow"
+            className="font-barlow price-value"
             style={{
               fontWeight: 800,
-              fontSize: '2.5rem',
+              fontSize: '1.8rem',
               color: 'var(--text-primary)',
+              transition: 'font-size 0.3s ease',
             }}
           >
             {price}
@@ -101,15 +101,15 @@ export const PricingCard: React.FC<PricingCardProps> = ({
         </div>
       </div>
 
-      <ul style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+      <ul style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
         {features.map((feature) => (
           <li
             key={feature}
             style={{
-              fontSize: '0.9rem',
+              fontSize: '0.8rem',
               color: 'var(--text-secondary)',
               display: 'flex',
-              gap: 8,
+              gap: 6,
             }}
           >
             <span style={{ color: 'var(--green)' }}>✓</span>

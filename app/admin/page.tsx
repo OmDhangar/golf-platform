@@ -131,17 +131,17 @@ export default function AdminDashboardPage() {
       </div>
 
       {/* Main content */}
-      <div style={{ flex: 1, padding: "24px 28px", display: "flex", flexDirection: "column", gap: 24 }}>
+      <div className="animate-fade-in" style={{ flex: 1, padding: "24px 16px", display: "flex", flexDirection: "column", gap: 24 }}>
 
         {/* Stat Cards */}
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 16 }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 16 }}>
           {[
             { label: "MONTHLY REC. REV.", value: "$124,500", trend: "+12.4%", trendUp: true },
             { label: "ACTIVE DRAW TICKETS", value: "842,091", trend: "+5.2%", trendUp: true },
             { label: "FLAGGED SCORES (>40)", value: "14", note: "Action Required", noteRed: true },
             { label: "ACTIVE USERS (30D)", value: totalUsers.toLocaleString(), note: "Stable", noteIcon: true },
           ].map((stat, i) => (
-            <div key={i} className="hea-card" style={{ padding: "18px 20px" }}>
+            <div key={i} className={`hea-card animate-fade-up delay-${(i + 1) * 100}`} style={{ padding: "18px 20px" }}>
               <p className="label-caps" style={{ color: "var(--text-muted)", marginBottom: 10 }}>{stat.label}</p>
               <p className="stat-value" style={{ fontSize: "1.9rem", color: i === 2 ? "var(--red)" : "var(--text-primary)" }}>{stat.value}</p>
               {stat.trend && (
@@ -158,11 +158,11 @@ export default function AdminDashboardPage() {
           ))}
         </div>
 
-        {/* Bottom two-column section */}
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 320px", gap: 20, flex: 1 }}>
+        {/* Bottom section */}
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 400px), 1fr))", gap: 20, flex: 1 }}>
 
           {/* Score Verification Queue */}
-          <div className="hea-card" style={{ padding: "22px 24px", display: "flex", flexDirection: "column" }}>
+          <div className="hea-card animate-fade-up delay-500" style={{ padding: "22px 24px", display: "flex", flexDirection: "column" }}>
             <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 6 }}>
               <div>
                 <h2 className="font-barlow" style={{ fontSize: "1.05rem", fontWeight: 800, letterSpacing: "0.08em", textTransform: "uppercase", color: "var(--text-primary)" }}>
@@ -226,7 +226,7 @@ export default function AdminDashboardPage() {
           </div>
 
           {/* Draw Engine Panel */}
-          <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+          <div className="animate-fade-up delay-500" style={{ display: "flex", flexDirection: "column", gap: 16 }}>
             <div className="hea-card" style={{ padding: "20px 22px", flex: 1, display: "flex", flexDirection: "column" }}>
               {/* Header */}
               <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 18, paddingBottom: 16, borderBottom: "1px solid var(--border)" }}>

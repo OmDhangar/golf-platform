@@ -3,6 +3,13 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
+interface AdminSidebarProps {
+  open?: boolean;
+  collapsed?: boolean;
+  onToggleCollapsed?: () => void;
+  onClose?: () => void;
+}
+
 const navItems = [
   {
     href: "/admin",
@@ -48,48 +55,94 @@ const navItems = [
   },
 ];
 
-export default function AdminSidebar() {
+export default function AdminSidebar({ open = false, collapsed = false, onToggleCollapsed, onClose }: AdminSidebarProps) {
   const pathname = usePathname();
 
   return (
     <aside
+      className={`${open ? "admin-sidebar admin-sidebar-open" : "admin-sidebar"} animate-slide-left`}
       style={{
-        width: 200,
+        width: collapsed ? 76 : 240,
         minHeight: "100vh",
         background: "var(--sidebar-bg)",
         borderRight: "1px solid var(--border)",
         display: "flex",
         flexDirection: "column",
         flexShrink: 0,
+        transition: "width 0.3s cubic-bezier(0.4, 0, 0.2, 1), transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+        zIndex: 2500,
       }}
     >
       {/* Header */}
-      <div style={{ padding: "24px 20px 20px", borderBottom: "1px solid var(--border)" }}>
+      <div style={{ padding: collapsed ? "18px 14px" : "24px 20px 20px", borderBottom: "1px solid var(--border)", display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 10 }}>
         <p
+          className="font-barlow animate-fade-in"
           style={{
-            fontFamily: "'Barlow Condensed', sans-serif",
             fontWeight: 800,
             fontSize: "1.05rem",
             letterSpacing: "0.06em",
             color: "var(--text-primary)",
             textTransform: "uppercase",
+            display: collapsed ? "none" : "block",
+            whiteSpace: "nowrap",
           }}
         >
           ADMIN PANEL
         </p>
-        <p
-          style={{
-            fontFamily: "'Barlow Condensed', sans-serif",
-            fontWeight: 600,
-            fontSize: "0.7rem",
-            letterSpacing: "0.12em",
-            color: "var(--green)",
-            textTransform: "uppercase",
-            marginTop: 2,
-          }}
-        >
-          MERIT GOLF
-        </p>
+
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <button
+            onClick={onToggleCollapsed}
+            style={{
+              background: "rgba(255,255,255,0.03)",
+              border: "1px solid var(--border)",
+              color: "var(--text-secondary)",
+              borderRadius: 8,
+              width: 32,
+              height: 32,
+              cursor: onToggleCollapsed ? "pointer" : "default",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              transition: "all 0.2s ease",
+            }}
+            aria-label="Toggle sidebar"
+          >
+            <svg 
+              width="16" 
+              height="16" 
+              viewBox="0 0 24 24" 
+              fill="none" 
+              stroke="currentColor" 
+              strokeWidth="2.5"
+              style={{ transform: collapsed ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 0.3s ease" }}
+            >
+              <path d="M15 18l-6-6 6-6" />
+            </svg>
+          </button>
+
+          {/* Only shown on mobile to close the overlay */}
+          <button
+            className="admin-mobile-only"
+            onClick={onClose}
+            style={{
+              background: "rgba(239, 68, 68, 0.1)",
+              border: "1px solid rgba(239, 68, 68, 0.2)",
+              color: "var(--red)",
+              borderRadius: 8,
+              width: 32,
+              height: 32,
+              cursor: "pointer",
+              display: "none", // Hidden by default, shown via CSS
+              alignItems: "center",
+              justifyContent: "center",
+              fontSize: "1.2rem",
+            }}
+            aria-label="Close sidebar"
+          >
+            ×
+          </button>
+        </div>
       </div>
 
       {/* Nav */}
@@ -126,6 +179,7 @@ export default function AdminSidebar() {
                   fontSize: "0.8rem",
                   letterSpacing: "0.12em",
                   textTransform: "uppercase",
+                  display: collapsed ? "none" : "inline",
                 }}
               >
                 {item.label}

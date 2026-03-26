@@ -269,7 +269,7 @@ export default function DashboardPage() {
                 </div>
             )}
 
-            <main style={{ maxWidth: 1200, margin: "0 auto", padding: "48px 24px" }}>
+            <main className="animate-fade-in" style={{ maxWidth: 1200, margin: "0 auto", padding: "24px 16px" }}>
                 
                 {showCharityModal && (
                     <CharityPickerModal 
@@ -288,12 +288,12 @@ export default function DashboardPage() {
                 ) : data ? (
                     <>
                         {/* HERO SECTION */}
-                        <div style={{
+                        <div className="animate-fade-up" style={{
                             position: "relative",
                             background: "linear-gradient(135deg, rgba(34,197,94,0.15) 0%, rgba(0,0,0,0.4) 100%)",
                             borderRadius: 24,
-                            padding: "48px 40px",
-                            marginBottom: 40,
+                            padding: "32px 24px",
+                            marginBottom: 24,
                             border: "1px solid rgba(34,197,94,0.3)",
                             boxShadow: "0 20px 40px -15px rgba(34,197,94,0.15)",
                             overflow: "hidden",
@@ -313,7 +313,7 @@ export default function DashboardPage() {
                                         {data.user?.role === "admin" ? "ADMINISTRATOR" : "GOLF & GIVING SUBSCRIBER"}
                                     </p>
                                 </div>
-                                <h1 className="font-barlow" style={{ fontWeight: 800, fontSize: "3rem", textTransform: "uppercase", color: "#fff", lineHeight: 1.1, letterSpacing: "-0.01em" }}>
+                                <h1 className="font-barlow animate-fade-up delay-100" style={{ fontWeight: 800, fontSize: "clamp(2rem, 5vw, 3rem)", textTransform: "uppercase", color: "#fff", lineHeight: 1.1, letterSpacing: "-0.01em" }}>
                                     Welcome Back,<br/><span style={{ color: "var(--green)" }}>{data.user?.full_name?.split(' ')[0] || "Golfer"}</span>
                                 </h1>
                             </div>
@@ -321,26 +321,26 @@ export default function DashboardPage() {
 
                         {/* Top Stats Row */}
                         <div style={{
-                            display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 20, marginBottom: 40
+                            display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 16, marginBottom: 32
                         }}>
-                            <div style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.05)", borderRadius: 16, padding: 24 }}>
-                                <p className="label-caps" style={{ color: "var(--text-muted)", marginBottom: 12 }}>TOTAL PRIZES WON</p>
-                                <p className="font-barlow" style={{ fontSize: "2rem", fontWeight: 800, color: "var(--green)" }}>{formatInr(data.winnings.total_won_inr)}</p>
+                            <div className="animate-fade-up delay-200" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.05)", borderRadius: 16, padding: 20 }}>
+                                <p className="label-caps" style={{ color: "var(--text-muted)", marginBottom: 8 }}>TOTAL PRIZES WON</p>
+                                <p className="font-barlow" style={{ fontSize: "1.8rem", fontWeight: 800, color: "var(--green)" }}>{formatInr(data.winnings.total_won_inr)}</p>
                             </div>
-                            <div style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.05)", borderRadius: 16, padding: 24 }}>
-                                <p className="label-caps" style={{ color: "var(--text-muted)", marginBottom: 12 }}>DRAWS ENTERED</p>
-                                <p className="font-barlow" style={{ fontSize: "2rem", fontWeight: 800, color: "var(--text-primary)" }}>{data.participations.total_draws_participated}</p>
+                            <div className="animate-fade-up delay-300" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.05)", borderRadius: 16, padding: 20 }}>
+                                <p className="label-caps" style={{ color: "var(--text-muted)", marginBottom: 8 }}>DRAWS ENTERED</p>
+                                <p className="font-barlow" style={{ fontSize: "1.8rem", fontWeight: 800, color: "var(--text-primary)" }}>{data.participations.total_draws_participated}</p>
                             </div>
-                            <div style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.05)", borderRadius: 16, padding: 24 }}>
-                                <p className="label-caps" style={{ color: "var(--text-muted)", marginBottom: 12 }}>SCORES LOGGED</p>
-                                <p className="font-barlow" style={{ fontSize: "2rem", fontWeight: 800, color: "var(--text-primary)" }}>{data.scores_count}</p>
+                            <div className="animate-fade-up delay-400" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.05)", borderRadius: 16, padding: 20 }}>
+                                <p className="label-caps" style={{ color: "var(--text-muted)", marginBottom: 8 }}>SCORES LOGGED</p>
+                                <p className="font-barlow" style={{ fontSize: "1.8rem", fontWeight: 800, color: "var(--text-primary)" }}>{data.scores_count}</p>
                             </div>
                         </div>
 
-                        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 32, marginBottom: 40, alignItems: "start" }}>
+                        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 350px), 1fr))", gap: 24, marginBottom: 32, alignItems: "start" }}>
                             
                             {/* Membership & Charity Column */}
-                            <div style={{ display: "flex", flexDirection: "column", gap: 32 }}>
+                            <div className="animate-fade-up delay-500" style={{ display: "flex", flexDirection: "column", gap: 24 }}>
                                 
                                 {/* Subscription Card */}
                                 <div style={{
@@ -428,7 +428,7 @@ export default function DashboardPage() {
                             </div>
 
                             {/* Scores & Quick Actions Column */}
-                            <div style={{ display: "flex", flexDirection: "column", gap: 32 }}>
+                            <div className="animate-fade-up delay-400" style={{ display: "flex", flexDirection: "column", gap: 24 }}>
 
                                 {/* Latest Scores */}
                                 <div style={{
@@ -474,10 +474,10 @@ export default function DashboardPage() {
                         </div>
 
                         {/* WINNINGS OVERVIEW */}
-                        <div style={{
+                        <div className="animate-fade-up delay-500" style={{
                             background: "rgba(255,255,255,0.015)", backdropFilter: "blur(10px)",
-                            border: "1px solid rgba(255,255,255,0.05)", borderRadius: 20, padding: 32,
-                            marginTop: 40
+                            border: "1px solid rgba(255,255,255,0.05)", borderRadius: 20, padding: "24px 20px",
+                            marginTop: 32
                         }}>
                             <h2 className="label-caps" style={{ color: "var(--text-muted)", marginBottom: 24 }}>YOUR DRAW WINNINGS</h2>
                             {winnerRows.length > 0 ? (
